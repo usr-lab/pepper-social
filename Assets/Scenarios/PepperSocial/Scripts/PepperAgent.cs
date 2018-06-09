@@ -31,9 +31,14 @@ public class PepperAgent : Agent {
         float allowedArea = ArenaDimensions * 0.9f;
 
         // Move the rat to a new spot
-        this.rBody.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
+        //this.rBody.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
+        //                                0.16f,
+        //                                (Random.value * allowedArea) - (allowedArea / 2));
+
+	this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
                                         0.16f,
                                         (Random.value * allowedArea) - (allowedArea / 2));
+
         this.rBody.angularVelocity = Vector3.zero;
         this.rBody.velocity = Vector3.zero;
 
@@ -43,9 +48,10 @@ public class PepperAgent : Agent {
                                         (Random.value * allowedArea) - (allowedArea / 2));
 
 	// Custom speed
- 	this.agentRigidbody = GetComponent<Rigidbody>();
-        this.moveSpeed = 0.5f;
-        this.turnSpeed = 400f;
+ 	//this.agentRigidbody = GetComponent<Rigidbody>();
+        //this.moveSpeed = 0.5f;
+        //this.turnSpeed = 400f;
+
 	this.maxStepsPerEpoch = 1000;
     }
 
