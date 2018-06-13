@@ -17,7 +17,7 @@ import time
 from custom_settings import settings
 debug_print = False
 data_gatherer = {
-                "isEnabled" : not True,
+                "isEnabled" : True,
                 "dir_base" : "/knut/",
                 "project" : "dev_env",
                 "file_base" : "devEnv_",
