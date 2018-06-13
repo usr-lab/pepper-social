@@ -25,7 +25,13 @@ public class PepperAgent : Agent {
     {
         rBody = GetComponent<Rigidbody>();
     }
-    
+
+    public override void InitializeAgent()
+    {
+      // GameObject cam = GameObject.Find("Main Camera");
+      // agentParameters.agentCameras.Add( cam.GetComponent<Camera>() );
+    }
+
     public override void AgentReset()
     {
         float allowedArea = ArenaDimensions * 0.9f;
@@ -35,7 +41,7 @@ public class PepperAgent : Agent {
         //                                0.16f,
         //                                (Random.value * allowedArea) - (allowedArea / 2));
 
-	this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
+	      this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
                                         0.16f,
                                         (Random.value * allowedArea) - (allowedArea / 2));
 
@@ -47,34 +53,35 @@ public class PepperAgent : Agent {
                                         0.1f,
                                         (Random.value * allowedArea) - (allowedArea / 2));
 
-	// Custom speed
- 	//this.agentRigidbody = GetComponent<Rigidbody>();
+	      // Custom speed
+ 	      //this.agentRigidbody = GetComponent<Rigidbody>();
         //this.moveSpeed = 0.5f;
         //this.turnSpeed = 400f;
-
-	this.maxStepsPerEpoch = 1000;
+	      this.maxStepsPerEpoch = 1000;
     }
 
     public override void CollectObservations()
     {
-        float arenaEdgefromCenter = ArenaDimensions / 2;
 
-        // Calculate relative position
-        Vector3 relativePosition = Target.position - this.transform.position;
+        // float arenaEdgefromCenter = ArenaDimensions / 2;
+        //
+        // // Calculate relative position
+        // Vector3 relativePosition = Target.position - this.transform.position;
+        //
+        // // Relative position
+        // AddVectorObs(relativePosition.x / arenaEdgefromCenter);
+        // AddVectorObs(relativePosition.z / arenaEdgefromCenter);
+        //
+        // // Distance to edges of platform
+        // AddVectorObs((this.transform.position.x + arenaEdgefromCenter) / arenaEdgefromCenter);
+        // AddVectorObs((this.transform.position.x - arenaEdgefromCenter) / arenaEdgefromCenter);
+        // AddVectorObs((this.transform.position.z + arenaEdgefromCenter) / arenaEdgefromCenter);
+        // AddVectorObs((this.transform.position.z - arenaEdgefromCenter) / arenaEdgefromCenter);
+        //
+        // // Agent velocity
+        // AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
+        // AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
 
-        // Relative position
-        AddVectorObs(relativePosition.x / arenaEdgefromCenter);
-        AddVectorObs(relativePosition.z / arenaEdgefromCenter);
-
-        // Distance to edges of platform
-        AddVectorObs((this.transform.position.x + arenaEdgefromCenter) / arenaEdgefromCenter);
-        AddVectorObs((this.transform.position.x - arenaEdgefromCenter) / arenaEdgefromCenter);
-        AddVectorObs((this.transform.position.z + arenaEdgefromCenter) / arenaEdgefromCenter);
-        AddVectorObs((this.transform.position.z - arenaEdgefromCenter) / arenaEdgefromCenter);
-
-        // Agent velocity
-        AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
-        AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
     }
 
     public override void AgentAction(float[] vectorAction, string textAction)

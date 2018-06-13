@@ -1,13 +1,48 @@
 import numpy as np
+from collections import deque
 
 from unityagents.exception import UnityException
 
+
+
+
+''' ----------------------------------------------------------------- '''
+''' Changedes to this class explained here:                           '''
+''' ----------------------------------------------------------------- '''
+
+'''
+The inner class is now built on a deque, as this allows for easy capping
+of the memory size...
+
+Placed some " ! " markers where code was changed, as not all list fcns
+are available for a deque.
+'''
+
+''' Changed so that data is made uint8 if we suspect it's an image... '''
+def pack(x):
+    try:
+        n = x.shape
+    except:
+        return x
+    return x if len(n) < 5 else (255*x).astype(np.uint8)
+''' We can also undo that so that no one notices...                   '''
+def unpack(x):
+    try:
+        n = x.shape
+    except:
+        return x
+    return x if len(n) < 5 else x.astype(np.float32)/255.0
+
+''' Changing the above functions to just return x always
+    will restore the code                                             '''
+''' ----------------------------------------------------------------- '''
 
 class BufferException(UnityException):
     """
     Related to errors with the Buffer.
     """
     pass
+
 
 
 class Buffer(dict):
@@ -22,39 +57,51 @@ class Buffer(dict):
         The keys correspond to the name of the field. Example: state, action
         """
 
-        class AgentBufferField(list):
+        class AgentBufferField(deque):
             """
-            AgentBufferField is a list of numpy arrays. When an agent collects a field, you can add it to his 
+            AgentBufferField is a list of numpy arrays. When an agent collects a field, you can add it to his
             AgentBufferField with the append method.
             """
+            def __init__(self):
+                super(Buffer.AgentBuffer.AgentBufferField,self).__init__(maxlen=100000)
 
             def __str__(self):
                 return str(np.array(self).shape)
+
+            ''' ! '''
+            ''' This was added to make slicing work'''
+            def __getitem__(self,k):
+                if type(k) is slice:
+                    return [self[x] for x in range(k.start,k.stop)]
+                return super(Buffer.AgentBuffer.AgentBufferField, self).__getitem__(k)
 
             def extend(self, data):
                 """
                 Ads a list of np.arrays to the end of the list of np.arrays.
                 :param data: The np.array list to append.
                 """
-                self += list(np.array(data))
+                self += list(np.array(pack(data)))
 
             def set(self, data):
                 """
                 Sets the list of np.array to the input data
                 :param data: The np.array list to be set.
                 """
-                self[:] = []
-                self[:] = list(np.array(data))
+                self.clear()
+                self.extend(list(np.array(pack(data))))
+                ''' ! '''
+                # self[:] = []
+                # self[:] = list(np.array(data))
 
             def get_batch(self, batch_size=None, training_length=None, sequential=True):
                 """
                 Retrieve the last batch_size elements of length training_length
                 from the list of np.array
-                :param batch_size: The number of elements to retrieve. If None: 
+                :param batch_size: The number of elements to retrieve. If None:
                 All elements will be retrieved.
                 :param training_length: The length of the sequence to be retrieved. If
                 None: only takes one element.
-                :param sequential: If true and training_length is not None: the elements 
+                :param sequential: If true and training_length is not None: the elements
                 will not repeat in the sequence. [a,b,c,d,e] with training_length = 2 and
                 sequential=True gives [[0,a],[b,c],[d,e]]. If sequential=False gives
                 [[a,b],[b,c],[c,d],[d,e]]
@@ -102,17 +149,25 @@ class Buffer(dict):
                         padding = np.array(self[-1]) * 0
                         # The padding is made with zeros and its shape is given by the shape of the last element
                         for end in range(len(self), len(self) % training_length, -training_length)[:batch_size]:
-                            tmp_list += [np.array(self[end - training_length:end])]
+                            ''' ! '''
+                            # tmp_list += [np.array(self[end - training_length:end])]
+                            tmp_list += [np.array([self[x] for x in range(end - training_length, end)])]
+
                         if (leftover != 0) and (len(tmp_list) < batch_size):
-                            tmp_list += [np.array([padding] * (training_length - leftover) + self[:leftover])]
+                            ''' ! '''
+                            # tmp_list += [np.array([padding] * (training_length - leftover) + self[:leftover])]
+                            tmp_list += [np.array([padding] * (training_length - leftover) + [self[x] for x in range(leftover)])]
                         tmp_list.reverse()
-                        return np.array(tmp_list)
+                        return unpack(np.array(tmp_list))
 
             def reset_field(self):
                 """
                 Resets the AgentBufferField
                 """
-                self[:] = []
+
+                ''' ! '''
+                # self[:] = []
+                self.clear()
 
         def __init__(self):
             self.last_brain_info = None
@@ -139,7 +194,7 @@ class Buffer(dict):
         def check_length(self, key_list):
             """
             Some methods will require that some fields have the same length.
-            check_length will return true if the fields in key_list 
+            check_length will return true if the fields in key_list
             have the same length.
             :param key_list: The fields which length will be compared
             """
@@ -167,7 +222,13 @@ class Buffer(dict):
             s = np.arange(len(self[key_list[0]]))
             np.random.shuffle(s)
             for key in key_list:
-                self[key][:] = [self[key][i] for i in s]
+                ''' ! '''
+                # self[key][:] = [self[key][i] for i in s]
+                tmp = [self[key][i] for i in s]
+                self[key].clear()
+                self[key].extend(tmp)
+
+
 
     def __init__(self):
         self.update_buffer = self.AgentBuffer()

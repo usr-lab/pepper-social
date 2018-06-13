@@ -15,6 +15,7 @@ from unitytrainers.trainer import UnityTrainerException, Trainer
 
 logger = logging.getLogger("unityagents")
 
+print_debug = False
 
 class PPOTrainer(Trainer):
     """The PPOTrainer is an implementation of the PPO algorythm."""
@@ -321,7 +322,7 @@ class PPOTrainer(Trainer):
 
     def end_episode(self):
         """
-        A signal that the Episode has ended. The buffer must be reset. 
+        A signal that the Episode has ended. The buffer must be reset.
         Get only called when the academy resets.
         """
         self.training_buffer.reset_all()
@@ -385,16 +386,39 @@ class PPOTrainer(Trainer):
                     for i, _ in enumerate(self.model.visual_in):
                         _obs = np.array(_buffer['observations%d' % i][start:end])
                         (_batch, _seq, _w, _h, _c) = _obs.shape
+                        ''' Keeping these lines if I change my mind about deleting them... '''
+                        # if _obs.dtype == np.uint8:
+                        #     print("Visual input not unpacked.....doing it for you :)",end='',flush=True)
+                        #     # assert _obs.shape[2:] == (96,96,3), "Either you changer image size from 96x96x3 and this is not a problem. OR something went weirdly wrong!"
+                        #     if print_debug:
+                        #         print("[{}]".format(_obs.shape,end='',flush=True))
+                        #     if print_debug:
+                        #         print("1",end='',flush=True)
+                        #     _obs = _obs.astype(np.float32)/255.0
+                        #     if print_debug:
+                        #         print("2",end='',flush=True)
                         feed_dict[self.model.visual_in[i]] = _obs.reshape([-1, _w, _h, _c])
+                        if print_debug:
+                            print("3",end='',flush=True)
                 if self.use_recurrent:
+                    if print_debug:
+                        print("4",end='',flush=True)
                     feed_dict[self.model.memory_in] = np.array(_buffer['memory'][start:end])[:, 0, :]
+                if print_debug:
+                    print("5",end='',flush=True)
                 v_loss, p_loss, _ = self.sess.run(
                     [self.model.value_loss, self.model.policy_loss,
                      self.model.update_batch], feed_dict=feed_dict)
+                if print_debug:
+                    print("6",end='',flush=True)
                 total_v += v_loss
                 total_p += p_loss
+        if print_debug:
+            print("7",end='',flush=True)
         self.stats['value_loss'].append(total_v)
         self.stats['policy_loss'].append(total_p)
+        if print_debug:
+            print("8",end='',flush=True)
         self.training_buffer.reset_update_buffer()
 
     def write_summary(self, lesson_number):

@@ -3,9 +3,26 @@ import logging
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as c_layers
+import pickle
 
 logger = logging.getLogger("unityagents")
 
+''' -------------------------------------------------'''
+''' Here are the control parameters for the changes! '''
+''' -------------------------------------------------'''
+from custom_settings import settings
+debug_print = False
+weight_initializer = {
+                        "enabled" : True,
+                        "file" : "/home/mightypirate1/Code/PepperSocial/python/weights.pkl",
+                        "n_convs" : 3,
+                        "conv_depths" : [32, 32, 32],
+                        "conv_strides" : [(1,1), (1,1), (1,1)],
+                        "conv_sizes" : [(5,5), (5,5), (5,5)],
+                        "hidden_size" : 400,
+                        "n_dense" : 2,
+                     }
+''' -------------------------------------------------'''
 
 class LearningModel(object):
     def __init__(self, m_size, normalize, use_recurrent, brain):
@@ -89,14 +106,61 @@ class LearningModel(object):
         :param num_layers: number of hidden layers to create.
         :return: List of hidden layer tensors.
         """
-        conv1 = tf.layers.conv2d(image_input, 16, kernel_size=[8, 8], strides=[4, 4],
-                                 activation=tf.nn.elu)
-        conv2 = tf.layers.conv2d(conv1, 32, kernel_size=[4, 4], strides=[2, 2],
-                                 activation=tf.nn.elu)
-        hidden = c_layers.flatten(conv2)
 
-        for j in range(num_layers):
-            hidden = tf.layers.dense(hidden, h_size, use_bias=False, activation=activation)
+        #If we store images as ints (0-255), we make sure to convert them to floats in the range (0-1)!
+        if settings['store_as_int']:
+            x = tf.cast(image_input, dtype=tf.float32)/255.0
+        else:
+            x = image_input
+
+        if weight_initializer["enabled"]:
+
+            print("Conv-layers initialized from file: {}".format(weight_initializer["file"]))
+            with open( weight_initializer["file"], 'rb') as file:
+                weights = pickle.load(file)
+
+            for w in weights:
+                print(len(w), w[0].shape, w[1].shape)
+
+            for i in range(weight_initializer["n_convs"]):
+                w_init = tf.initializers.constant(weights[i][0])
+                b_init = tf.initializers.constant(weights[i][1])
+                x = tf.layers.conv2d(
+                                 x,
+                                 weight_initializer['conv_depths'][i],
+                                 padding='same',
+                                 kernel_size=weight_initializer['conv_sizes'][i],
+                                 strides=weight_initializer['conv_strides'][i],
+                                 activation=tf.nn.elu,
+                                 kernel_initializer=w_init,
+                                 bias_initializer=b_init
+                                )
+                print("---")
+                print("Layer: {}".format(x))
+                print("weights: {}".format([w.shape for w in weights[i]]))
+            x = tf.layers.max_pooling2d(
+                                        x,
+                                        pool_size=(2,2),
+                                        strides=(2,2),
+                                        padding='valid',
+                                        data_format='channels_last',
+                                        name=None
+                                )
+
+            x = c_layers.flatten(x)
+            for i in range(weight_initializer["n_dense"]):
+                x = tf.layers.dense(x, weight_initializer["hidden_size"], use_bias=False, activation=activation)
+            hidden = x
+        else:
+            conv1 = tf.layers.conv2d(image_input, 16, kernel_size=[8, 8], strides=[4, 4],
+                                 activation=tf.nn.elu)
+            conv2 = tf.layers.conv2d(conv1, 32, kernel_size=[4, 4], strides=[2, 2],
+                                 activation=tf.nn.elu)
+            hidden = c_layers.flatten(conv2)
+
+            for j in range(num_layers):
+                hidden = tf.layers.dense(hidden, h_size, use_bias=False, activation=activation)
+
         return hidden
 
     def create_discrete_state_encoder(self, s_size, h_size, activation, num_layers):
