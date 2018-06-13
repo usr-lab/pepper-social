@@ -13,7 +13,7 @@ logger = logging.getLogger("unityagents")
 from custom_settings import settings
 debug_print = False
 weight_initializer = {
-                        "enabled" : not True,
+                        "enabled" : True,
                         "file" : "/home/mightypirate1/Code/PepperSocial/python/weights.pkl",
                         "avg" : "/home/mightypirate1/Code/PepperSocial/python/avg.pkl",
                         "n_convs" : 3,
@@ -116,13 +116,13 @@ class LearningModel(object):
 
         if weight_initializer["enabled"]:
             '''Say hi!'''
-            print("Conv-layers initialized from file: {}".format(weight_initializer["file"]))
-            for w in weights:
-                print(len(w), w[0].shape, w[1].shape)
             with open( weight_initializer["avg"], 'rb') as file:
                 avg_val = pickle.load(file)
             with open( weight_initializer["file"], 'rb') as file:
                 weights = pickle.load(file)
+            print("Conv-layers initialized from file: {}".format(weight_initializer["file"]))
+            for w in weights:
+                print(len(w), w[0].shape, w[1].shape)
 
             avg = tf.convert_to_tensor(avg_val, dtype=None, name=None, preferred_dtype=None)
             x = x - avg
