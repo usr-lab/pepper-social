@@ -122,14 +122,14 @@ class LearningModel(object):
                 weights = pickle.load(file)
             print("Conv-layers initialized from file: {}".format(weight_initializer["file"]))
             for w in weights:
-                print(len(w), w[0].shape, w[1].shape)
+                print(w[0].shape)
 
             avg = tf.convert_to_tensor(avg_val, dtype=None, name=None, preferred_dtype=None)
             x = x - avg
 
             for i in range(weight_initializer["n_convs"]):
                 w_init = tf.initializers.constant(weights[i][0])
-                b_init = tf.initializers.constant(weights[i][1])
+                b_init = tf.initializers.zeros #tf.initializers.constant(weights[i][1])
                 x = tf.layers.conv2d(
                                  x,
                                  weight_initializer['conv_depths'][i],
