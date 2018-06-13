@@ -16,7 +16,7 @@ weight_initializer = {
                         "enabled" : True,
                         "file" : "/home/mightypirate1/Code/PepperSocial/python/weights.pkl",
                         "n_convs" : 3,
-                        "conv_depths" : [32, 32, 32],
+                        "conv_depths" : [32, 32, 16],
                         "conv_strides" : [(1,1), (1,1), (1,1)],
                         "conv_sizes" : [(5,5), (5,5), (5,5)],
                         "hidden_size" : 400,
