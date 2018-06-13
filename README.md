@@ -16,5 +16,5 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 * The [TensorflowSharp](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Background-TensorFlow.md#tensorflowsharp) plugins folder was omitted from this project due to the massive file sizes. You will need to import this set of Unity plugins yourself. You can download the TensorFlowSharp plugin as a [Unity package here](https://s3.amazonaws.com/unity-ml-agents/0.3/TFSharpPlugin.unitypackage).
 
 ## Follow Me
-* Twitter: [@alexyuangao](http://twitter.com/ActiveNick)
+* Twitter: [@alexyuangao](http://twitter.com/alexyuangao)
 * Blog: [github.io](gaoyuankidult.github.io)
