@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PepperAgent : Agent {
+public class PepperAgent : Agent
+{
 
     public float ArenaDimensions = 20.0f;
     public float speed = 100f;
@@ -21,11 +22,18 @@ public class PepperAgent : Agent {
     private int maxStepsPerEpoch;
     private int steps;
 
+    private GroupManager gpManager;
+
     void Start()
     {
         rBody = GetComponent<Rigidbody>();
+        gpManager = GameObject.Find("Cheese").GetComponent<GroupManager>();
+        if (!gpManager)
+        {
+            Debug.LogError("GroupManager was not attached");
+        }
     }
-    
+
     public override void AgentReset()
     {
         float allowedArea = ArenaDimensions * 0.9f;
@@ -35,9 +43,9 @@ public class PepperAgent : Agent {
         //                                0.16f,
         //                                (Random.value * allowedArea) - (allowedArea / 2));
 
-	this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
-                                        0.16f,
-                                        (Random.value * allowedArea) - (allowedArea / 2));
+        this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
+                                            0.16f,
+                                            (Random.value * allowedArea) - (allowedArea / 2));
 
         this.rBody.angularVelocity = Vector3.zero;
         this.rBody.velocity = Vector3.zero;
@@ -47,12 +55,14 @@ public class PepperAgent : Agent {
                                         0.1f,
                                         (Random.value * allowedArea) - (allowedArea / 2));
 
-	// Custom speed
- 	//this.agentRigidbody = GetComponent<Rigidbody>();
+        // Custom speed
+        //this.agentRigidbody = GetComponent<Rigidbody>();
         //this.moveSpeed = 0.5f;
         //this.turnSpeed = 400f;
 
-	this.maxStepsPerEpoch = 1000;
+        this.maxStepsPerEpoch = 1000;
+
+        gpManager.ResetAgents();
     }
 
     public override void CollectObservations()
@@ -97,10 +107,11 @@ public class PepperAgent : Agent {
         }
 
 
-	// Set orientation
+        // Set orientation
         Vector3 deltaPosition = Target.position - transform.position;
 
-        if (deltaPosition != Vector3.zero) {
+        if (deltaPosition != Vector3.zero)
+        {
             // Same effect as rotating with quaternions, but simpler to read
             transform.forward = deltaPosition;
         }
@@ -117,55 +128,56 @@ public class PepperAgent : Agent {
         previousDistance = distanceToTarget;
 
         // Actions, size = 2
-	// punish turning
-	//AddReward(vectorAction[1]);
+        // punish turning
+        //AddReward(vectorAction[1]);
         //HandleMovement(vectorAction);
 
-	// Actions, size = 2
+        // Actions, size = 2
         Vector3 controlSignal = Vector3.zero;
         controlSignal.x = Mathf.Clamp(vectorAction[0], -1, 1);
         controlSignal.z = Mathf.Clamp(vectorAction[1], -1, 1);
-        Debug.Log($"Action X:{controlSignal.x}, Y:{controlSignal.y}");
+        //Debug.Log($"Action X:{controlSignal.x}, Y:{controlSignal.y}");
         rBody.AddForce(controlSignal * speed);
 
         this.steps = this.steps + 1;
-	if (this.steps == this.maxStepsPerEpoch)
-	{
-		this.steps = 0;
-		Done();
-	}
+        if (this.steps == this.maxStepsPerEpoch)
+        {
+            this.steps = 0;
+            Done();
+        }
     }
-    private void HandleMovement(float[] action) {
-		Vector3 dirToGo = Vector3.zero;
-		Vector3 rotateDir = Vector3.zero;
+    private void HandleMovement(float[] action)
+    {
+        Vector3 dirToGo = Vector3.zero;
+        Vector3 rotateDir = Vector3.zero;
 
-		if (brain.brainParameters.vectorActionSpaceType == SpaceType.continuous)
-		{
-			dirToGo = transform.forward * Mathf.Clamp(action[0], -1f, 1f);
-			rotateDir = transform.up * Mathf.Clamp(action[1], -1f, 1f);
-		}
-		else
-		{
-			switch ((int)(action[0]))
-			{
-				case 1:
-					dirToGo = -transform.forward;
-					break;
-				case 2:
-					rotateDir = -transform.up;
-					break;
-				case 3:
-					rotateDir = transform.up;
-					break;
-			}
-		}
-		agentRigidbody.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
-		transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
+        if (brain.brainParameters.vectorActionSpaceType == SpaceType.continuous)
+        {
+            dirToGo = transform.forward * Mathf.Clamp(action[0], -1f, 1f);
+            rotateDir = transform.up * Mathf.Clamp(action[1], -1f, 1f);
+        }
+        else
+        {
+            switch ((int)(action[0]))
+            {
+                case 1:
+                    dirToGo = -transform.forward;
+                    break;
+                case 2:
+                    rotateDir = -transform.up;
+                    break;
+                case 3:
+                    rotateDir = transform.up;
+                    break;
+            }
+        }
+        agentRigidbody.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
+        transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
 
-		if (agentRigidbody.velocity.sqrMagnitude > 25f) // slow it down
-		{
-			agentRigidbody.velocity *= 0.95f;
-		}
+        if (agentRigidbody.velocity.sqrMagnitude > 25f) // slow it down
+        {
+            agentRigidbody.velocity *= 0.95f;
+        }
 
 
     }
