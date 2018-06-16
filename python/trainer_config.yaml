@@ -34,7 +34,7 @@ PushBlockBrain:
     time_horizon: 64
     num_layers: 2
 
-SmallWallBrain: 
+SmallWallBrain:
     max_steps: 2.0e5
     batch_size: 128
     buffer_size: 2048
@@ -45,7 +45,7 @@ SmallWallBrain:
     num_layers: 2
     normalize: false
 
-BigWallBrain: 
+BigWallBrain:
     max_steps: 2.0e5
     batch_size: 128
     buffer_size: 2048
@@ -165,5 +165,7 @@ StudentBrain:
     sequence_length: 16
     buffer_size: 128
 
-RatBrain:
+PepperBrain:
     max_steps: 5.0e7
+    batch_size: 512
+    learning_rate: 3.0e-6

@@ -8,6 +8,30 @@ import os
 import re
 import tensorflow as tf
 import yaml
+import pickle
+import time
+
+''' -------------------------------------------------'''
+''' Here are the control parameters for the changes! '''
+''' -------------------------------------------------'''
+from custom_settings import settings
+debug_print = False
+data_gatherer = {
+                "isEnabled" : not True,
+                "dir_base" : "/knut/",
+                "project" : "dev_env",
+                "file_base" : "devEnv_",
+                "n" : 1000,
+                "obs_size" : (96,96,3),
+                "n_chunks" : 0,
+                "idx" : 0,
+                "firstRun" : True,
+                }
+data_gatherer["size"] = (data_gatherer["n"],)+data_gatherer["obs_size"]
+data_gatherer["data"] = np.empty(data_gatherer['size'], dtype=np.uint8)
+data_gatherer["dir"] = data_gatherer["dir_base"] + data_gatherer["project"] + "/data/"
+''' -------------------------------------------------'''
+
 
 from tensorflow.python.tools import freeze_graph
 from unitytrainers.ppo.trainer import PPOTrainer
@@ -79,6 +103,7 @@ class TrainerController(object):
                                     curriculum=self.curriculum_file, seed=self.seed,
                                     docker_training=self.docker_training)
         self.env_name = os.path.basename(os.path.normpath(env_path))  # Extract out name of environment
+
 
     def _get_progress(self):
         if self.curriculum_file is not None:
@@ -234,37 +259,107 @@ class TrainerController(object):
             if self.train_model:
                 for brain_name, trainer in self.trainers.items():
                     trainer.write_tensorboard_text('Hyperparameters', trainer.parameters)
+
             try:
                 while any([t.get_step <= t.get_max_steps for k, t in self.trainers.items()]) or not self.train_model:
+                    if debug_print:
+                        print("|",end='',flush=True)
                     if self.env.global_done:
                         self.env.curriculum.increment_lesson(self._get_progress())
                         curr_info = self.env.reset(train_mode=self.fast_simulation)
                         for brain_name, trainer in self.trainers.items():
                             trainer.end_episode()
+
+                    ''' ----- '''
+                    ''' Enabling data gathering disables the normal functionality.... '''
+                    if data_gatherer['isEnabled']:
+                        if data_gatherer['firstRun']:
+                            print("---")
+                            print("NORMAL FUNCTIONALITY DISABLED!")
+                            print("Now we just sample stats from the initial distribution and save them:")
+                            print("Save dir: {}".format(data_gatherer['dir']))
+                            print("---")
+                            data_gatherer['firstRun'] = False
+
+                        curr_info = self.env.reset(train_mode=self.fast_simulation)
+                        data_gatherer['data'][data_gatherer['idx'],:,:,:] = (255*curr_info["PepperBrain"].visual_observations[0]).astype(np.uint8)
+                        data_gatherer['idx'] += 1
+
+                        if data_gatherer['idx'] == data_gatherer['n']:
+                            #WRITE_TO_FILE....
+                            print("Saving chunk {}...".format(data_gatherer['n_chunks']))
+                            with open(data_gatherer['dir'] + data_gatherer['file_base'] + "chunk{}.pkl".format(str(data_gatherer['n_chunks']).zfill(5)), 'wb') as outfile:
+                                pickle.dump(data_gatherer['data'], outfile, pickle.HIGHEST_PROTOCOL)
+                            #Prep next:
+                            data_gatherer['n_chunks'] += 1
+                            data_gatherer['data'] = np.empty(data_gatherer['size'],dtype=np.uint8)
+                            data_gatherer['idx'] = 0
+                            if data_gatherer['n_chunks'] == 1500:
+                                print("Total samples gathered: {}".format((data_gatherer['n_chunks']-1000)*1000))
+                                exit()
+                        continue
+                    ''' ----- '''
+
                     # Decide and take an action
                     take_action_vector, take_action_memories, take_action_text, take_action_outputs = {}, {}, {}, {}
                     for brain_name, trainer in self.trainers.items():
                         (take_action_vector[brain_name],
-                         take_action_memories[brain_name],
-                         take_action_text[brain_name],
-                         take_action_outputs[brain_name]) = trainer.take_action(curr_info)
+                        take_action_memories[brain_name],
+                        take_action_text[brain_name],
+                        take_action_outputs[brain_name]) = trainer.take_action(curr_info)
+                        # print ( take_action_vector[brain_name].shape )
+                        # print ( take_action_vector[brain_name] )
+                        # print ( take_action_memories[brain_name] )
+                        # print ( take_action_text[brain_name] )
+                        # print ( take_action_outputs[brain_name] )
+                        # exit()
+                        '''
+                        prints...
+                        [[1.799122   0.30649814]]
+                        None
+                        ['[-0.42089063]']
+                        {<tf.Tensor 'action:0' shape=(?, 2) dtype=float32>: array([[1.799122  , 0.30649814]], dtype=float32), <tf.Tensor 'action_probs:0' shape=(?, 2) dtype=float32>: array([[0.07957534, 0.3779522 ]], dtype=float32), <tf.Tensor 'value_estimate:0' shape=(?, 1) dtype=float32>: array([[-0.42089063]], dtype=float32), <tf.Tensor 'mul_7:0' shape=(?,) dtype=float32>: array([1.4189385], dtype=float32), <tf.Tensor 'PolynomialDecay:0' shape=() dtype=float32>: 0.0003, <tf.Tensor 'random_normal:0' shape=(?, 2) dtype=float32>: array([[1.7956127 , 0.32878286]], dtype=float32)}
+                        '''
                     new_info = self.env.step(vector_action=take_action_vector, memory=take_action_memories,
                                              text_action=take_action_text)
 
+                    # print(curr_info["PepperBrain"].visual_observations)
+                    # print(len(curr_info["PepperBrain"].visual_observations))
+                    # print( (255*curr_info["PepperBrain"].visual_observations[0]))
+                    # print(curr_info["PepperBrain"].visual_observations[0].shape)
+
+                    if settings['store_as_int']:
+                        for key in new_info:
+                            for x in range(len(new_info[key].visual_observations)):
+                                new_info[key].visual_observations[x] = (255*new_info[key].visual_observations[x]).astype(np.uint8)
+
                     for brain_name, trainer in self.trainers.items():
+                        if debug_print:
+                            print(".",end='',flush=True)
                         trainer.add_experiences(curr_info, new_info, take_action_outputs[brain_name])
                         trainer.process_experiences(curr_info, new_info)
                         if trainer.is_ready_update() and self.train_model and trainer.get_step <= trainer.get_max_steps:
+                            if debug_print:
+                                print("!",end='',flush=True)
                             # Perform gradient descent with experience buffer
+                            print("Updating model... ",end='', flush=True)
+                            t = time.time()
                             trainer.update_model()
+                            print("[x] Done in {} seconds.".format(time.time()))
                         # Write training statistics to Tensorboard.
+                        if debug_print:
+                            print(",",end='',flush=True)
                         trainer.write_summary(self.env.curriculum.lesson_number)
                         if self.train_model and trainer.get_step <= trainer.get_max_steps:
+                            if debug_print:
+                                print("?",end='',flush=True)
                             trainer.increment_step()
                             trainer.update_last_reward()
                     if self.train_model and trainer.get_step <= trainer.get_max_steps:
                         global_step += 1
                     if global_step % self.save_freq == 0 and global_step != 0 and self.train_model:
+                        if debug_print:
+                            print("x",end='',flush=True)
                         # Save Tensorflow model
                         self._save_model(sess, steps=global_step, saver=saver)
                     curr_info = new_info
