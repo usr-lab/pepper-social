@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PepperAgent : Agent {
+public class PepperAgentSecond : Agent {
 
     public float ArenaDimensions = 20.0f;
-    public float speed = 100f;
+    public float speed = 1f;
+    public float rotation_speed = 0.3f;
     // What the agent is chasing
     public Transform Target;
-    public GameObject headCam;
+    public GameObject cam;
 
     Rigidbody rBody;
 
     private float previousDistance = float.MaxValue;
 
     private Rigidbody agentRigidbody;
-    private Vector3 offset = new Vector3(0.0f,2.0f,0.0f);
+    private Vector3 offset = new Vector3(0.0f,1.0f,0.0f);
 
     private float moveSpeed;
     private float turnSpeed;
@@ -25,7 +26,10 @@ public class PepperAgent : Agent {
 
     void MoveCamera()
     {
-
+        // Vector3 offset = new Vector3(0.0f,1.0f,0.0f);
+        Vector3 offset = 1f*rBody.transform.up + 0.1f*rBody.transform.forward;
+        this.cam.transform.position = transform.position + offset;
+        this.cam.transform.forward = rBody.transform.forward;
     }
 
     void Start()
@@ -35,13 +39,13 @@ public class PepperAgent : Agent {
 
     public override void InitializeAgent()
     {
-      this.headCam = GameObject.Find("Head Camera");
-      //agentParameters.agentCameras.Add( headCam.GetComponent<Camera>() );
+      this.cam = GameObject.Find("Main Camera");
+      //agentParameters.agentCameras.Add( cam.GetComponent<Camera>() );
     }
 
     public override void AgentReset()
     {
-        float allowedArea = ArenaDimensions * 0.9f;
+        float allowedArea = ArenaDimensions * 0.5f;
 
         // Move the rat to a new spot
         //this.rBody.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
@@ -113,13 +117,13 @@ public class PepperAgent : Agent {
         }
 
 
-	// Set orientation
-        Vector3 deltaPosition = Target.position - transform.position;
-
-        if (deltaPosition != Vector3.zero) {
-            // Same effect as rotating with quaternions, but simpler to read
-            transform.forward = deltaPosition;
-        }
+	      // // Set orientation
+        // Vector3 deltaPosition = Target.position - transform.position;
+        //
+        // if (deltaPosition != Vector3.zero) {
+        //     // Same effect as rotating with quaternions, but simpler to read
+        //     transform.forward = deltaPosition;
+        // }
 
         // Time penalty
         AddReward(-0.05f);
@@ -141,18 +145,28 @@ public class PepperAgent : Agent {
         Vector3 controlSignal = Vector3.zero;
         controlSignal.x = Mathf.Clamp(vectorAction[0], -1, 1);
         controlSignal.z = Mathf.Clamp(vectorAction[1], -1, 1);
-        Debug.Log($"Action X:{controlSignal.x}, Y:{controlSignal.y}");
-        rBody.AddForce(controlSignal * speed);
+        Debug.Log($"Action X:{controlSignal.x}, theta:{controlSignal.y}");
+
+        //rBody.AddForce(controlSignal * speed);
+        rBody.transform.Rotate(3f*(controlSignal.x)*Vector3.up);
+        Vector3 v = rBody.velocity;
+        Vector3 rotated_v = Quaternion.AngleAxis(3f*(controlSignal.x), Vector3.up) * v;
+        rBody.velocity = rotated_v;
+
+        rBody.AddForce(20.0f * controlSignal.z*rBody.transform.forward);
+        // rBody.AddForce(speed * rBody.transform.forward);
 
         this.steps = this.steps + 1;
 
-  MoveCamera();
-	if (this.steps == this.maxStepsPerEpoch)
-	{
-		this.steps = 0;
-		Done();
-	}
+        MoveCamera();
+
+	      if (this.steps == this.maxStepsPerEpoch)
+	      {
+		        this.steps = 0;
+		        Done();
+	      }
     }
+
     private void HandleMovement(float[] action) {
 		Vector3 dirToGo = Vector3.zero;
 		Vector3 rotateDir = Vector3.zero;
