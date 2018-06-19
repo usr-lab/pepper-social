@@ -14,22 +14,8 @@ import time
 ''' -------------------------------------------------'''
 ''' Here are the control parameters for the changes! '''
 ''' -------------------------------------------------'''
-from custom_settings import settings
+from custom_settings import settings, data_gatherer
 debug_print = False
-data_gatherer = {
-                "isEnabled" : not True,
-                "dir_base" : "/knut/",
-                "project" : "dev_env",
-                "file_base" : "devEnv_",
-                "n" : 1000,
-                "obs_size" : (96,96,3),
-                "n_chunks" : 0,
-                "idx" : 0,
-                "firstRun" : True,
-                }
-data_gatherer["size"] = (data_gatherer["n"],)+data_gatherer["obs_size"]
-data_gatherer["data"] = np.empty(data_gatherer['size'], dtype=np.uint8)
-data_gatherer["dir"] = data_gatherer["dir_base"] + data_gatherer["project"] + "/data/"
 ''' -------------------------------------------------'''
 
 

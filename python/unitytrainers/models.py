@@ -10,19 +10,8 @@ logger = logging.getLogger("unityagents")
 ''' -------------------------------------------------'''
 ''' Here are the control parameters for the changes! '''
 ''' -------------------------------------------------'''
-from custom_settings import settings
+from custom_settings import settings, weight_initializer
 debug_print = False
-weight_initializer = {
-                        "enabled" : not True,
-                        "file" : "weights0.pkl",
-                        "avg" : "avg_img_10300",
-                        "n_convs" : 3,
-                        "conv_depths" : [32, 32, 16],
-                        "conv_strides" : [(1,1), (1,1), (1,1)],
-                        "conv_sizes" : [(5,5), (5,5), (5,5)],
-                        "hidden_size" : 400,
-                        "n_dense" : 2,
-                     }
 ''' -------------------------------------------------'''
 
 class LearningModel(object):
