@@ -6,13 +6,14 @@ public class PepperAgent : Agent
 {
 
     public float ArenaDimensions = 20.0f;
-    public float speed = 100f;
+    public float speed = 20f;
     // What the agent is chasing
     public Transform Target;
 
     Rigidbody rBody;
 
     private float previousDistance = float.MaxValue;
+    private float previousPotentialLoss = float.MaxValue;	
 
     private Rigidbody agentRigidbody;
 
@@ -24,44 +25,37 @@ public class PepperAgent : Agent
 
     private GroupManager gpManager;
 
+	private MainAgentSocialForce maSocialForce;
+	
     void Start()
     {
         rBody = GetComponent<Rigidbody>();
-        gpManager = GameObject.Find("Cheese").GetComponent<GroupManager>();
+        gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
         if (!gpManager)
         {
             Debug.LogError("GroupManager was not attached");
         }
+
+		maSocialForce = this.GetComponent<MainAgentSocialForce>();
+		maxStepsPerEpoch = 1000;
+
     }
 
     public override void AgentReset()
     {
         float allowedArea = ArenaDimensions * 0.9f;
 
-        // Move the rat to a new spot
-        //this.rBody.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
-        //                                0.16f,
-        //                                (Random.value * allowedArea) - (allowedArea / 2));
-
         this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
                                             0.16f,
                                             (Random.value * allowedArea) - (allowedArea / 2));
 
+		float targetAllowedArea = ArenaDimensions * 0.6f;
+		Target.transform.position = new Vector3((Random.value * targetAllowedArea) - (targetAllowedArea / 2),
+                              0.16f,
+                             (Random.value * targetAllowedArea) - (targetAllowedArea / 2));
+
         this.rBody.angularVelocity = Vector3.zero;
         this.rBody.velocity = Vector3.zero;
-
-        // Move the target to a new spot
-        Target.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
-                                        0.1f,
-                                        (Random.value * allowedArea) - (allowedArea / 2));
-
-        // Custom speed
-        //this.agentRigidbody = GetComponent<Rigidbody>();
-        //this.moveSpeed = 0.5f;
-        //this.turnSpeed = 400f;
-
-        this.maxStepsPerEpoch = 1000;
-
         gpManager.ResetAgents();
     }
 
@@ -85,62 +79,86 @@ public class PepperAgent : Agent
         // Agent velocity
         AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
         AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
-    }
+
+		// Diatance to another two agents
+        Vector3 relativePositionAgentOne = gpManager.agents[0].transform.position - this.transform.position;
+        Vector3 relativePositionAgentTwo = gpManager.agents[1].transform.position - this.transform.position;
+        AddVectorObs(relativePositionAgentOne.x / arenaEdgefromCenter);
+        AddVectorObs(relativePositionAgentOne.z / arenaEdgefromCenter);
+        AddVectorObs(relativePositionAgentTwo.x / arenaEdgefromCenter);
+        AddVectorObs(relativePositionAgentTwo.z / arenaEdgefromCenter);
+	}
+
+	void CalculateReward()
+	{
+		// Setting weights for rewards
+		float fastEpisodeWeight = 0.5f;
+		float potentialLossWeight = 1f;
+		float noneIncreasingWeight = 4f; // Tendency of not increasing potential loss
+
+		// egocentrism and altruism weights
+		float egocentrismWeight = 0.1f;
+		float altruismWeight = 1f - egocentrismWeight;
+
+		// Initializing the rewards from two sides
+		float egocentrismReward = 0f;
+		float altruismReward = 0f;
+		
+	    // Checking the ending criteria
+		float distanceToTarget = Vector3.Distance(this.transform.position,
+                                                  Target.position);
+
+		// Calculate the egocentric reward
+		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
+		egocentrismReward += potentialLoss * potentialLossWeight; 		// Potential loss is the reward
+
+        if (potentialLoss < 0f)
+        {
+			egocentrismReward += potentialLoss * noneIncreasingWeight; // increasing potential penalty
+        }
+        if (distanceToTarget < gpManager.oSpace)
+        {
+
+        }
+
+		// Calculate the egocentric reward
+		foreach (GameObject agent in gpManager.agents)
+		{
+			altruismReward += agent.GetComponent<SocialForce>().GetFinalForce().magnitude;
+		}
+
+		AddReward(egocentrismWeight * egocentrismReward + altruismWeight * altruismReward);
+		// Calculate the final reward
+        if (distanceToTarget < gpManager.oSpace)
+        {
+			AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egocentrismWeight); // fast complesion tendensy
+            Done();
+        }
+		
+	}
 
     public override void AgentAction(float[] vectorAction, string textAction)
     {
-        // Rewards
-        float distanceToTarget = Vector3.Distance(this.transform.position,
-                                                  Target.position);
 
-        // Reached target
-        if (distanceToTarget < 0.5f)
-        {
-            Done();
-            AddReward(1.0f);
-        }
-
-        // Getting closer
-        if (distanceToTarget < previousDistance)
-        {
-            AddReward(0.1f);
-        }
-
+		CalculateReward();
 
         // Set orientation
         Vector3 deltaPosition = Target.position - transform.position;
-
         if (deltaPosition != Vector3.zero)
         {
             // Same effect as rotating with quaternions, but simpler to read
             transform.forward = deltaPosition;
         }
 
-        // Time penalty
-        AddReward(-0.05f);
-
-        // Fell off platform
-        //if (this.transform.position.y < -1.0)
-        //{
-        //    Done();
-        //    AddReward(-1.0f);
-        //}
-        previousDistance = distanceToTarget;
-
-        // Actions, size = 2
-        // punish turning
-        //AddReward(vectorAction[1]);
-        //HandleMovement(vectorAction);
-
-        // Actions, size = 2
+		// Perform action
         Vector3 controlSignal = Vector3.zero;
         controlSignal.x = Mathf.Clamp(vectorAction[0], -1, 1);
         controlSignal.z = Mathf.Clamp(vectorAction[1], -1, 1);
-        //Debug.Log($"Action X:{controlSignal.x}, Y:{controlSignal.y}");
         rBody.AddForce(controlSignal * speed);
 
-        this.steps = this.steps + 1;
-        if (this.steps == this.maxStepsPerEpoch)
+		this.steps = this.steps + 1;
+		Debug.Log(this.steps);
+		if (this.steps == this.maxStepsPerEpoch)
         {
             this.steps = 0;
             Done();

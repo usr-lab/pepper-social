@@ -168,4 +168,4 @@ StudentBrain:
 PepperBrain:
     max_steps: 5.0e7
     batch_size: 512
-    learning_rate: 3.0e-6
+    learning_rate: 1.0e-5
