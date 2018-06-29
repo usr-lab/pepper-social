@@ -27,7 +27,7 @@ from unityagents import UnityEnvironment, UnityEnvironmentException
 
 class TrainerController(object):
     def __init__(self, env_path, run_id, save_freq, curriculum_file, fast_simulation, load, train,
-                 worker_id, keep_checkpoints, lesson, seed, docker_target_name, trainer_config_path):
+                 worker_id, keep_checkpoints, lesson, seed, docker_target_name, trainer_config_path, use_data_gatherer):
         """
 
         :param env_path: Location to the environment executable to be loaded.
@@ -90,6 +90,10 @@ class TrainerController(object):
                                     docker_training=self.docker_training)
         self.env_name = os.path.basename(os.path.normpath(env_path))  # Extract out name of environment
 
+        ''' Here's a small change (this only happens if code is launched with the '--data-gatherer' flag) '''
+        self.use_data_gatherer = use_data_gatherer
+        if use_data_gatherer:
+            self.train_model = True
 
     def _get_progress(self):
         if self.curriculum_file is not None:
@@ -258,7 +262,7 @@ class TrainerController(object):
 
                     ''' ----- '''
                     ''' Enabling data gathering disables the normal functionality.... '''
-                    if data_gatherer['isEnabled']:
+                    if self.use_data_gatherer:
                         if data_gatherer['firstRun']:
                             print("---")
                             print("NORMAL FUNCTIONALITY DISABLED!")

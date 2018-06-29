@@ -5,16 +5,16 @@ import numpy as np
 settings = {
             "store_as_int" : True,
             "dir_base" : "data/",
-            "project" : "pepper_dev",
+            "project" : "pepperBig_trial3",
            }
 
 ''' -----------------------------------------------------------------------------'''
 ''' These control how the conv-net is made and initialized. Happens in models.py '''
 ''' -----------------------------------------------------------------------------'''
 weight_initializer = {
-                        "enabled" : not True,
-                        "file" : "weights0.pkl",
-                        "avg" : "avg_img_10300",
+                        "enabled" : True,
+                        "file" : "weights",
+                        "avg" : "avg_img",
                         "n_convs" : 3,
                         "conv_depths" : [32, 32, 16],
                         "conv_strides" : [(1,1), (1,1), (1,1)],
@@ -22,18 +22,18 @@ weight_initializer = {
                         "hidden_size" : 400,
                         "n_dense" : 2,
                      }
+weight_initializer['init_dir'] = settings['dir_base'] + settings['project'] + "/init/"
 
 ''' ------------------------------------------------------------------'''
 ''' This controls the data-gatherer. Happens in trainer_controller.py '''
 ''' ------------------------------------------------------------------'''
 data_gatherer = {
-                "isEnabled" : not True,
                 "dir_base" : settings['dir_base'],
                 "project" : settings['project'],
                 "file_base" : "devEnv_",
                 "n" : 1000,
                 "obs_size" : (96,96,3),
-                "n_chunks" : 0,
+                "n_chunks" : 100,
                 "idx" : 0,
                 "firstRun" : True,
                 }
