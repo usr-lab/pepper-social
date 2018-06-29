@@ -10,19 +10,8 @@ logger = logging.getLogger("unityagents")
 ''' -------------------------------------------------'''
 ''' Here are the control parameters for the changes! '''
 ''' -------------------------------------------------'''
-from custom_settings import settings
+from custom_settings import settings, weight_initializer
 debug_print = False
-weight_initializer = {
-                        "enabled" : True,
-                        "file" : "weights_pepperBig_trial2.pkl",
-                        "avg" : "avg_img_pepperBig_trial2",
-                        "n_convs" : 3,
-                        "conv_depths" : [32, 32, 16],
-                        "conv_strides" : [(1,1), (1,1), (1,1)],
-                        "conv_sizes" : [(5,5), (5,5), (5,5)],
-                        "hidden_size" : 400,
-                        "n_dense" : 2,
-                     }
 ''' -------------------------------------------------'''
 
 class LearningModel(object):
@@ -116,11 +105,11 @@ class LearningModel(object):
 
         if weight_initializer["enabled"]:
             '''Say hi!'''
-            with open( weight_initializer["avg"], 'rb') as file:
+            with open( weight_initializer["init_dir"] + weight_initializer["avg"], 'rb') as file:
                 avg_val = pickle.load(file)
-            with open( weight_initializer["file"], 'rb') as file:
+            with open( weight_initializer["init_dir"] + weight_initializer["file"], 'rb') as file:
                 weights = pickle.load(file)
-            print("Conv-layers initialized from file: {}".format(weight_initializer["file"]))
+            print("Conv-layers initialized from file: {}".format(weight_initializer["init_dir"] + weight_initializer["file"]))
             for w in weights:
                 print(w[0].shape)
 
@@ -129,7 +118,7 @@ class LearningModel(object):
 
             for i in range(weight_initializer["n_convs"]):
                 w_init = tf.initializers.constant(weights[i][0])
-                b_init = tf.initializers.zeros #tf.initializers.constant(weights[i][1])
+                b_init = tf.initializers.zeros if len(weights[i]) == 1 else tf.initializers.constant(weights[i][1])
                 x = tf.layers.conv2d(
                                  x,
                                  weight_initializer['conv_depths'][i],
