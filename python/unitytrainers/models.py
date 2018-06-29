@@ -13,9 +13,9 @@ logger = logging.getLogger("unityagents")
 from custom_settings import settings
 debug_print = False
 weight_initializer = {
-                        "enabled" : not True,
-                        "file" : "weights0.pkl",
-                        "avg" : "avg_img_10300",
+                        "enabled" : True,
+                        "file" : "weights_pepperBig_trial2.pkl",
+                        "avg" : "avg_img_pepperBig_trial2",
                         "n_convs" : 3,
                         "conv_depths" : [32, 32, 16],
                         "conv_strides" : [(1,1), (1,1), (1,1)],

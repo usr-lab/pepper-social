@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class SocialForce : MonoBehaviour {
+public class MainAgentSocialForce : MonoBehaviour {
 
     public float publicDistance = 15.0f;
     public float socialDistance = 10.0f;
@@ -23,10 +23,9 @@ public class SocialForce : MonoBehaviour {
     private GameObject lineDrawPrefabSocial;
     private GameObject lineDrawPrefabPublic;
 
-	private Vector3 finalForce = Vector3.zero;
-	private Vector3 repulsiveForce = Vector3.zero;
+	public Vector3 finalForce = Vector3.zero;
 
-	// Use this for initialization
+    // Use this for initialization
     void Start () {
         gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
         if (!gpManager)
@@ -79,8 +78,8 @@ public class SocialForce : MonoBehaviour {
             }
         }
 
-        finalForce = Vector3.zero;
-        repulsiveForce = Vector3.zero;
+		finalForce = Vector3.zero;
+        Vector3 repulsiveForce = Vector3.zero;
         Vector3 equalityForce = Vector3.zero;
         Vector3 equalityOrientation = Vector3.zero;
         Vector3 cohesionForce = Vector3.zero;
@@ -101,15 +100,6 @@ public class SocialForce : MonoBehaviour {
 
         finalForce += repulsiveForce.normalized;
 
-        this.transform.position += finalForce.normalized * speed;
-        //if (equalityOrientation == Vector3.zero)
-        //{
-        //    Debug.Log("zeroEquality");
-        //}
-        //if (cohesionOrientation == Vector3.zero)
-        //{
-        //    Debug.Log("zeroCohesion");
-        //}
 
         Vector3 finalOrientation = equalityOrientation + cohesionOrientation;
         if (finalOrientation != Vector3.zero)
@@ -172,6 +162,7 @@ public class SocialForce : MonoBehaviour {
             orientation += ri - r;
         }
     }
+
 
     void DrawAreas(float radius, Color color, LineRenderer lineDrawer)
     {

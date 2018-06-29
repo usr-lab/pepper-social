@@ -7,9 +7,11 @@ public class GroupManager : MonoBehaviour {
     public float bSpace = 15.0f;
     public float cSpace = 10.0f;
     public float oSpace = 3.0f;    
-    public int numberOfAgent = 3;    
+    public int numberOfAgent = 3;
+
+	public GameObject floor;
+	public GameObject[] agents {get; set;}
     private GameObject agentPrefab;
-    private GameObject[] agents;
     private Vector3 oCenter = Vector3.zero;
     private GameObject centerSphere;
     private GameObject lineDrawPrefab;
@@ -19,20 +21,25 @@ public class GroupManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        // naive spawn only one group
+		agents = new GameObject[numberOfAgent];
         SpawnAgents();
-        GetPotentialAgents();
+        // naive spawn only one group
+
         centerSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         centerSphere.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
         centerSphere.GetComponent<Renderer>().material.color = Color.red;
-        InitGroupCenter();
+		oCenter = this.transform.position;		
+		centerSphere.transform.position = oCenter;
+
+        //InitGroupCenter();
+		
         lineDrawPrefab = Resources.Load("Prefab/lineDrawPrefab") as GameObject;
         lineDrawPrefabBSpace = GameObject.Instantiate(lineDrawPrefab) as GameObject;
         lineDrawPrefabCSpace = GameObject.Instantiate(lineDrawPrefab) as GameObject;
         lineDrawPrefabOSpace = GameObject.Instantiate(lineDrawPrefab) as GameObject;
     }
 	
-	// Update is called once per frame
+	// Update is called once per frame 
 	void Update () {
         DrawAreas(bSpace, Color.red, lineDrawPrefabBSpace.GetComponent<LineRenderer>());
         DrawAreas(cSpace, Color.yellow, lineDrawPrefabCSpace.GetComponent<LineRenderer>());
@@ -42,33 +49,43 @@ public class GroupManager : MonoBehaviour {
     public void SpawnAgents()
     {
         agentPrefab = Resources.Load("Prefab/Agent") as GameObject;
+		float angle = Random.Range (0f, Mathf.PI * 2);
+		Debug.Log(numberOfAgent);
         for (int i = 0; i < numberOfAgent; i++)
         {
             float directionFacing = Random.Range(0f, 360f);
-
-            // need to pick a random position around originPoint but inside spawnRadius
-            // must not be too close to another agent inside spawnRadius
-            Vector3 point = (Random.insideUnitSphere * bSpace) + this.transform.position;
+			float agentAngle = angle + Mathf.PI * 2 / numberOfAgent * i;
+            float x = Mathf.Sin (agentAngle);
+            float z = Mathf.Cos (agentAngle);
+            Vector3 point = new Vector3(x, 0f, z) * oSpace + this.transform.position;
             point.y = this.transform.position.y;
-            Instantiate(agentPrefab, point, Quaternion.Euler(new Vector3(0f, directionFacing, 0f)));
+            GameObject agent = Instantiate(agentPrefab, point, Quaternion.Euler(new Vector3(0f, directionFacing, 0f))) as GameObject;
+			agent.transform.localScale = Vector3.one;
+			agents[i] = agent;
         }
     }
 
 
     public void ResetAgents()
     {
+		float angle = Random.Range (0f, Mathf.PI * 2);
+		oCenter = this.transform.position;		
+		centerSphere.transform.position = oCenter;
+		
         for (int i = 0; i < numberOfAgent; i++)
         {
             float directionFacing = Random.Range(0f, 360f);
 
             // need to pick a random position around originPoint but inside spawnRadius
             // must not be too close to another agent inside spawnRadius
-            Vector3 point = (Random.insideUnitSphere * bSpace) + this.transform.position;
+			float agentAngle = angle + Mathf.PI * 2 /numberOfAgent * i;
+            float x = Mathf.Sin (agentAngle);
+            float z = Mathf.Cos (agentAngle);
+            Vector3 point = new Vector3(x, 0f, z) * oSpace + this.transform.position;
             point.y = this.transform.position.y;
             agents[i].transform.position = point;
             agents[i].transform.forward = new Vector3(Mathf.Cos(directionFacing * Mathf.PI / 180.0f), 0.0f, Mathf.Sin(directionFacing * Mathf.PI / 180.0f));
         }
-        UpdateGroupCenter(agents);
     }
 
     public Vector3 GetGroupCenter()
@@ -89,68 +106,6 @@ public class GroupManager : MonoBehaviour {
         }
         // very naive return all agents in the group
         return count;
-    }
-
-    private void InitGroupCenter()
-    {
-        if (agents.Length != 0)
-        {
-            Vector3 center = Vector3.zero;
-            foreach (var agent in agents)
-            {
-                center += agent.transform.position;
-            }
-            center /= agents.Length;
-            oCenter = center;
-        } else
-        {
-            Debug.LogError("Could not find any agent");
-        }
-        centerSphere.transform.position = oCenter;
-    }
-
-    private void UpdateGroupCenter(GameObject[] agents)
-    {
-        if (agents.Length != 0)
-        {
-            Vector3 center = Vector3.zero;
-            foreach (var agent in agents)
-            {
-                center += agent.transform.position;
-            }
-            center /= agents.Length;
-            oCenter = center;
-        }
-        else
-        {
-            Debug.LogError("Could not find any agent");
-        }
-        centerSphere.transform.position = oCenter;
-    }
-
-    public void UpdateGroupCenter(List<Vector3> listR)
-    {
-        if (listR.Count != 0)
-        {
-            Vector3 center = Vector3.zero;
-            foreach (var ri in listR)
-            {
-                center += ri;
-            }
-            center /= listR.Count;
-            oCenter = center;
-        }
-        else
-        {
-            Debug.LogError("Could not find any agent");
-        }
-        centerSphere.transform.position = oCenter;
-    }
-
-    private void GetPotentialAgents()
-    {
-        //for test, naively select all agents in the scene
-        agents = GameObject.FindGameObjectsWithTag("Agent");
     }
 
     void DrawAreas(float radius, Color color, LineRenderer lineDrawer)
