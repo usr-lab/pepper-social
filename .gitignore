@@ -222,3 +222,13 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+# Project specific files:
+python/summaries/
+python/summaries/*
+python/models/
+python/models/*
+python/data/
+python/data/*
+python/env/
+python/env/*
