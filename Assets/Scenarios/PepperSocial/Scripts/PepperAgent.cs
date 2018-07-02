@@ -157,7 +157,7 @@ public class PepperAgent : Agent
         rBody.AddForce(controlSignal * speed);
 
 		this.steps = this.steps + 1;
-		Debug.Log(this.steps);
+		//Debug.Log(this.steps);
 		if (this.steps == this.maxStepsPerEpoch)
         {
             this.steps = 0;

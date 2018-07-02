@@ -11,6 +11,7 @@ public class GroupManager : MonoBehaviour {
 
 	public GameObject floor;
 	public GameObject[] agents {get; set;}
+    private List<GameObject> sumAgents = new List<GameObject>();
     private GameObject agentPrefab;
     private Vector3 oCenter = Vector3.zero;
     private GameObject centerSphere;
@@ -50,7 +51,7 @@ public class GroupManager : MonoBehaviour {
     {
         agentPrefab = Resources.Load("Prefab/Agent") as GameObject;
 		float angle = Random.Range (0f, Mathf.PI * 2);
-		Debug.Log(numberOfAgent);
+		//Debug.Log(numberOfAgent);
         for (int i = 0; i < numberOfAgent; i++)
         {
             float directionFacing = Random.Range(0f, 360f);
@@ -62,9 +63,14 @@ public class GroupManager : MonoBehaviour {
             GameObject agent = Instantiate(agentPrefab, point, Quaternion.Euler(new Vector3(0f, directionFacing, 0f))) as GameObject;
 			agent.transform.localScale = Vector3.one;
 			agents[i] = agent;
+            sumAgents.Add(agent);
         }
     }
 
+    public void AddToAgentList(GameObject agent)
+    {
+        sumAgents.Add(agent);
+    }
 
     public void ResetAgents()
     {
@@ -106,6 +112,16 @@ public class GroupManager : MonoBehaviour {
         }
         // very naive return all agents in the group
         return count;
+    }
+
+    public void UpdateGroupCenter()
+    {
+        Vector3 center = Vector3.zero;
+        foreach (var agent in sumAgents)
+        {
+            center += agent.transform.position;
+        }
+        oCenter = center / sumAgents.Count;
     }
 
     void DrawAreas(float radius, Color color, LineRenderer lineDrawer)

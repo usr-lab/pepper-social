@@ -2053,7 +2053,7 @@ MonoBehaviour:
   socialDistance: 5
   personalDistance: 1
   stabilizeParameter: 0.1
-  speed: 0.01
+  speed: 1
 --- !u!136 &136301962161562654
 CapsuleCollider:
   m_ObjectHideFlags: 1
