@@ -10,7 +10,7 @@ public class SocialForce : MonoBehaviour {
     public float personalDistance = 3.0f;
     public float stabilizeParameter = 0.1f;
 
-    public float speed = 0.01f;
+    public float speed = 10.0f;
 
     private List<Vector3> neighbourPersonalObjects = new List<Vector3>();
     private List<Vector3> neighbourSocialObjects = new List<Vector3>();
@@ -26,6 +26,8 @@ public class SocialForce : MonoBehaviour {
 	private Vector3 finalForce = Vector3.zero;
 	private Vector3 repulsiveForce = Vector3.zero;
 
+    private Rigidbody rBody;
+
 	// Use this for initialization
     void Start () {
         gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
@@ -38,6 +40,12 @@ public class SocialForce : MonoBehaviour {
         lineDrawPrefabPersonal = GameObject.Instantiate(lineDrawPrefab) as GameObject;
         lineDrawPrefabSocial = GameObject.Instantiate(lineDrawPrefab) as GameObject;
         lineDrawPrefabPublic = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+
+        rBody = this.gameObject.GetComponent<Rigidbody>();
+        if (!rBody)
+        {
+            Debug.LogError("RigidBody was not attached");
+        }
     }
 	
 	// Update is called once per frame
@@ -101,7 +109,10 @@ public class SocialForce : MonoBehaviour {
 
         finalForce += repulsiveForce.normalized;
 
-        this.transform.position += finalForce.normalized * speed;
+        //this.transform.position += finalForce.normalized * speed;
+        Debug.Log(finalForce.magnitude);
+        rBody.AddForce(finalForce.normalized * speed, ForceMode.VelocityChange);
+
         //if (equalityOrientation == Vector3.zero)
         //{
         //    Debug.Log("zeroEquality");
