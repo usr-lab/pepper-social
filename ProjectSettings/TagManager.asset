@@ -11,6 +11,7 @@ TagManager:
   - resource
   - farm
   - Agent
+  - Pepper
   layers:
   - Default
   - TransparentFX

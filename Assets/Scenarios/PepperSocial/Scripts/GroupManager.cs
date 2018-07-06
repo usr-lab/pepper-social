@@ -9,7 +9,6 @@ public class GroupManager : MonoBehaviour {
     public float oSpace = 3.0f;    
     public int numberOfAgent = 3;
 
-	public GameObject floor;
 	public GameObject[] agents {get; set;}
     private List<GameObject> sumAgents = new List<GameObject>();
     private GameObject agentPrefab;
@@ -105,7 +104,7 @@ public class GroupManager : MonoBehaviour {
         Collider[] colliders = Physics.OverlapSphere(transform.position, oSpace);
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject != this.gameObject && collider.tag == "Agent")
+            if (collider.gameObject != this.gameObject && (collider.tag == "Agent" || collider.tag=="Pepper"))
             {
                 count++;
             }
