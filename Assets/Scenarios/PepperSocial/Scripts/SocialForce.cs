@@ -10,7 +10,7 @@ public class SocialForce : MonoBehaviour {
     public float personalDistance = 3.0f;
     public float stabilizeParameter = 0.1f;
 
-    public float speed = 10.0f;
+    public float scale = 10.0f;
 
     private List<Vector3> neighbourPersonalObjects = new List<Vector3>();
     private List<Vector3> neighbourSocialObjects = new List<Vector3>();
@@ -48,8 +48,8 @@ public class SocialForce : MonoBehaviour {
         }
     }
 	
-	// Update is called once per frame
-	void Update () {
+	// if using add force, it should be in FixedUpdate
+	void FixedUpdate () {
         UpdateNeighbors();
 	}
 
@@ -66,7 +66,7 @@ public class SocialForce : MonoBehaviour {
         Collider[] colliders = Physics.OverlapSphere(transform.position, publicDistance);
         foreach (Collider collider in colliders)
         {
-            if (collider.gameObject != this.gameObject && collider.tag == "Agent")
+            if (collider.gameObject != this.gameObject && (collider.tag == "Agent"|| collider.tag == "Pepper"))
             {
                 var distance = Vector3.Distance(collider.gameObject.transform.position, gameObject.transform.position);
                 if (distance <= publicDistance)
@@ -94,7 +94,8 @@ public class SocialForce : MonoBehaviour {
         Vector3 cohesionForce = Vector3.zero;
         Vector3 cohesionOrientation = Vector3.zero;
         int numberOfOSpaceAgent = gpManager.GetOSpaceAgents();
-        Vector3 converCenter = gpManager.GetGroupCenter();
+        Vector3 OrigConverCenter = gpManager.GetGroupCenter();
+        Vector3 converCenter = new Vector3(OrigConverCenter.x, this.gameObject.transform.position.y, OrigConverCenter.z);
 
         GetReplusiveForce(personalDistance, miniPersonalDistance, neighbourPersonalObjects, this.transform.position, out repulsiveForce);
         GetEqualityForce(neighbourSocialObjects, this.transform.position, out equalityForce, out equalityOrientation);
@@ -103,15 +104,15 @@ public class SocialForce : MonoBehaviour {
         if (Vector3.Distance(transform.position, converCenter) >= gpManager.oSpace + stabilizeParameter
             || Vector3.Distance(transform.position, converCenter) <= gpManager.oSpace - stabilizeParameter)
         {
-            finalForce += 2.0f*cohesionForce.normalized;
+            finalForce += 2.0f * cohesionForce.normalized;
             finalForce += equalityForce.normalized;
         }
 
-        finalForce += repulsiveForce.normalized;
+        finalForce += 1.0f * repulsiveForce.normalized;
 
         //this.transform.position += finalForce.normalized * speed;
         Debug.Log(finalForce.magnitude);
-        rBody.AddForce(finalForce.normalized * speed, ForceMode.VelocityChange);
+        rBody.AddForce(finalForce.normalized * scale, ForceMode.Force);
 
         //if (equalityOrientation == Vector3.zero)
         //{
@@ -125,7 +126,7 @@ public class SocialForce : MonoBehaviour {
         Vector3 finalOrientation = equalityOrientation + cohesionOrientation;
         if (finalOrientation != Vector3.zero)
         {
-            this.transform.forward = finalOrientation;
+            this.transform.forward = new Vector3(finalOrientation.x, 0.0f, finalOrientation.z);                
         }
 
         DrawArrow.ForDebug(transform.position+new Vector3(0.0f,0.9f,0.0f), cohesionForce.normalized, Color.black);
@@ -175,7 +176,7 @@ public class SocialForce : MonoBehaviour {
 
     void GetCohesionForce(List<Vector3> listR, int oAgent, float oRadius, Vector3 converCenter, Vector3 r, out Vector3 force, out Vector3 orientation)
     {
-        float alpha = (float)listR.Count() / (float)(oAgent + 1);
+        float alpha = (float)listR.Count() / (float)(oAgent + 1);        
         force = alpha * (1.0f - oRadius / (converCenter - r).magnitude) * (converCenter - r);
         orientation = Vector3.zero;
         foreach (var ri in listR)
