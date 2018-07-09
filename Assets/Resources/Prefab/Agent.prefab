@@ -2051,7 +2051,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   publicDistance: 8
   socialDistance: 5
-  personalDistance: 1.5
+  personalDistance: 1
   stabilizeParameter: 0.1
   scale: 30
 --- !u!136 &136301962161562654

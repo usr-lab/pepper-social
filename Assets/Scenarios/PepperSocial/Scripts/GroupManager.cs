@@ -10,6 +10,7 @@ public class GroupManager : MonoBehaviour {
     public int numberOfAgent = 3;
 
 	public GameObject[] agents {get; set;}
+	public SocialForce[] agentsSocialForces {get; set;}
     private List<GameObject> sumAgents = new List<GameObject>();
     private GameObject agentPrefab;
     private Vector3 oCenter = Vector3.zero;
@@ -19,10 +20,16 @@ public class GroupManager : MonoBehaviour {
     private GameObject lineDrawPrefabCSpace;
     private GameObject lineDrawPrefabOSpace;
 
+
     // Use this for initialization
     void Start () {
 		agents = new GameObject[numberOfAgent];
         SpawnAgents();
+		agentsSocialForces = new SocialForce[numberOfAgent];
+		for(int i = 0; i < numberOfAgent; i++) 
+		{
+			agentsSocialForces[i] = this.agents[i].GetComponent<SocialForce>();
+		}		
         // naive spawn only one group
 
         centerSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -97,6 +104,11 @@ public class GroupManager : MonoBehaviour {
     {
         return oCenter;
     }
+
+	public int GetNumberOfAgents()
+	{
+		return this.numberOfAgent;
+	}
 
     public int GetOSpaceAgents()
     {

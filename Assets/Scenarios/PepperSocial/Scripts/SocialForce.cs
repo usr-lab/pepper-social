@@ -54,7 +54,10 @@ public class SocialForce : MonoBehaviour {
 	}
 
 	public Vector3 GetFinalForce() {
-		   return this.finalForce;
+		return this.finalForce;
+	}
+	public Rigidbody GetrBody() {
+		return this.gameObject.GetComponent<Rigidbody>();
 	}
 
     void UpdateNeighbors()

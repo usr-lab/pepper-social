@@ -6,7 +6,7 @@ public class PepperAgent : Agent
 {
 
     public float ArenaDimensions = 20.0f;
-    public float speed = 20f;
+    public float speed = 0.1f;
     // What the agent is chasing
     public Transform Target;
 
@@ -37,8 +37,7 @@ public class PepperAgent : Agent
         }
 
 		maSocialForce = this.GetComponent<MainAgentSocialForce>();
-		maxStepsPerEpoch = 1000;
-
+		maxStepsPerEpoch = 300;
     }
 
     public override void AgentReset()
@@ -81,57 +80,65 @@ public class PepperAgent : Agent
         AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
 
 		// Diatance to another two agents
-        Vector3 relativePositionAgentOne = gpManager.agents[0].transform.position - this.transform.position;
-        Vector3 relativePositionAgentTwo = gpManager.agents[1].transform.position - this.transform.position;
-        AddVectorObs(relativePositionAgentOne.x / arenaEdgefromCenter);
-        AddVectorObs(relativePositionAgentOne.z / arenaEdgefromCenter);
-        AddVectorObs(relativePositionAgentTwo.x / arenaEdgefromCenter);
-        AddVectorObs(relativePositionAgentTwo.z / arenaEdgefromCenter);
+		// Calculate the egocentric reward
+		for(int i = 0; i < gpManager.numberOfAgent; i++)
+
+//		foreach(GameObject agent in gpManager.agents)		
+		{
+			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
+//			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;			
+			AddVectorObs(relativePositionAgent.x / arenaEdgefromCenter);
+			AddVectorObs(relativePositionAgent.z / arenaEdgefromCenter);
+			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.x / arenaEdgefromCenter);
+			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.z / arenaEdgefromCenter);
+//			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
+//			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
+
+		}
 	}
 
 	void CalculateReward()
 	{
 		// Setting weights for rewards
-		float fastEpisodeWeight = 0.5f;
+		float fastEpisodeWeight = 0.2f;
 		float potentialLossWeight = 1f;
-		float noneIncreasingWeight = 4f; // Tendency of not increasing potential loss
+		float noneIncreasingWeight = 12f; // Tendency of not increasing potential loss
+		float tiresomeWeight = 0.4f; 
 
 		// egocentrism and altruism weights
-		float egocentrismWeight = 0.1f;
-		float altruismWeight = 1f - egocentrismWeight;
+		float egoismWeight = 0.05f;
+		float altruismWeight = 1f - egoismWeight;
 
 		// Initializing the rewards from two sides
-		float egocentrismReward = 0f;
+		float egoismReward = 0f;
 		float altruismReward = 0f;
 		
 	    // Checking the ending criteria
 		float distanceToTarget = Vector3.Distance(this.transform.position,
                                                   Target.position);
 
-		// Calculate the egocentric reward
+		// Calculate the egoism reward
 		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
-		egocentrismReward += potentialLoss * potentialLossWeight; 		// Potential loss is the reward
-
+		egoismReward += potentialLoss * potentialLossWeight; 		// Potential loss is the reward
         if (potentialLoss < 0f)
         {
-			egocentrismReward += potentialLoss * noneIncreasingWeight; // increasing potential penalty
+			egoismReward += potentialLoss * noneIncreasingWeight; // increasing potential penalty
         }
-        if (distanceToTarget < gpManager.oSpace)
-        {
-
-        }
-
-		// Calculate the egocentric reward
-		foreach (GameObject agent in gpManager.agents)
+		AddReward(-rBody.velocity.magnitude * tiresomeWeight);
+		
+		// Calculate the egoism reward
+		for(int i = 0; i < gpManager.numberOfAgent; i++)
 		{
-			altruismReward += agent.GetComponent<SocialForce>().GetFinalForce().magnitude;
+			altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
+										   gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity);
+
 		}
 
-		AddReward(egocentrismWeight * egocentrismReward + altruismWeight * altruismReward);
+		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 		// Calculate the final reward
         if (distanceToTarget < gpManager.oSpace)
         {
-			AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egocentrismWeight); // fast complesion tendensy
+			AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egoismWeight); // fast complesion tendensy
             Done();
         }
 		
