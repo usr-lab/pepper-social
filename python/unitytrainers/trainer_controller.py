@@ -92,8 +92,8 @@ class TrainerController(object):
 
         ''' Here's a small change (this only happens if code is launched with the '--data-gatherer' flag) '''
         self.use_data_gatherer = use_data_gatherer
-        if use_data_gatherer:
-            self.train_model = True
+        #if use_data_gatherer:
+        #    self.train_model = True
 
     def _get_progress(self):
         if self.curriculum_file is not None:
@@ -226,7 +226,6 @@ class TrainerController(object):
         self._create_model_path(self.model_path)
 
         tf.reset_default_graph()
-
         with tf.Session() as sess:
             self._initialize_trainers(trainer_config, sess)
             for k, t in self.trainers.items():
@@ -249,7 +248,6 @@ class TrainerController(object):
             if self.train_model:
                 for brain_name, trainer in self.trainers.items():
                     trainer.write_tensorboard_text('Hyperparameters', trainer.parameters)
-
             try:
                 while any([t.get_step <= t.get_max_steps for k, t in self.trainers.items()]) or not self.train_model:
                     if debug_print:
@@ -259,6 +257,18 @@ class TrainerController(object):
                         curr_info = self.env.reset(train_mode=self.fast_simulation)
                         for brain_name, trainer in self.trainers.items():
                             trainer.end_episode()
+                    if data_gatherer['reset_after_each_frame']:
+                        curr_info = self.env.reset(train_mode=self.fast_simulation)
+
+                    # Decide and take an action
+                    take_action_vector, take_action_memories, take_action_text, take_action_outputs = {}, {}, {}, {}
+                    for brain_name, trainer in self.trainers.items():
+                        (take_action_vector[brain_name],
+                        take_action_memories[brain_name],
+                        take_action_text[brain_name],
+                        take_action_outputs[brain_name]) = trainer.take_action(curr_info)
+                    new_info = self.env.step(vector_action=take_action_vector, memory=take_action_memories,
+                                             text_action=take_action_text)
 
                     ''' ----- '''
                     ''' Enabling data gathering disables the normal functionality.... '''
@@ -273,42 +283,42 @@ class TrainerController(object):
                             ape = input()
                             data_gatherer['firstRun'] = False
 
-                        curr_info = self.env.reset(train_mode=self.fast_simulation)
-                        take_action_vector, take_action_memories, take_action_text, take_action_outputs = {}, {}, {}, {}
-                        for brain_name, trainer in self.trainers.items():
-                            (take_action_vector[brain_name],
-                            take_action_memories[brain_name],
-                            take_action_text[brain_name],
-                            take_action_outputs[brain_name]) = trainer.take_action(curr_info)
-                        new_info = self.env.step(vector_action=take_action_vector, memory=take_action_memories,
-                                                 text_action=take_action_text)
-                        data_gatherer['data'][data_gatherer['idx'],:,:,:] = (255*new_info["PepperBrain"].visual_observations[0]).astype(np.uint8)
-                        data_gatherer['idx'] += 1
-
-                        if data_gatherer['idx'] == data_gatherer['n']:
+                        #if data_gatherer['reset_after_each_frame']:
+                        #    curr_info = self.env.reset(train_mode=self.fast_simulation)
+                        #    take_action_vector, take_action_memories, take_action_text, take_action_outputs = {}, {}, {}, {}
+                        #    for brain_name, trainer in self.trainers.items():
+                        #        (take_action_vector[brain_name],
+                        #        take_action_memories[brain_name],
+                        #        take_action_text[brain_name],
+                        #        take_action_outputs[brain_name]) = trainer.take_action(curr_info)
+                        #    new_info = self.env.step(vector_action=take_action_vector, memory=take_action_memories,
+                        #                         text_action=take_action_text) 
+                        
+                        is_done = False
+                        for x in new_info:
+                            for l in range(len(new_info[x].agents)):
+                                is_done = is_done or new_info[x].local_done[l] 
+                        
+                        if data_gatherer['idx'] == data_gatherer['n'] or is_done:
                             #WRITE_TO_FILE....
-                            print("Saving chunk {}...".format(data_gatherer['n_chunks']))
+                            print("Saving chunk {}... ({} samples)".format(data_gatherer['n_chunks'], data_gatherer['idx']))
                             with open(data_gatherer['dir'] + data_gatherer['file_base'] + "chunk{}.pkl".format(str(data_gatherer['n_chunks']).zfill(5)), 'wb') as outfile:
-                                pickle.dump(data_gatherer['data'], outfile, pickle.HIGHEST_PROTOCOL)
+                                pickle.dump(data_gatherer['data'][:data_gatherer['idx'],:,:,:].reshape((-1,)+data_gatherer['obs_size']), outfile, pickle.HIGHEST_PROTOCOL)
                             #Prep next:
                             data_gatherer['n_chunks'] += 1
                             data_gatherer['data'] = np.empty(data_gatherer['size'],dtype=np.uint8)
                             data_gatherer['idx'] = 0
+
                             if data_gatherer['n_chunks'] == 1500:
                                 print("Total samples gathered: {}".format((data_gatherer['n_chunks']-1000)*1000))
                                 exit()
-                        continue
+                        data_gatherer['data'][data_gatherer['idx'],:,:,:] = (255*new_info["PepperBrain"].visual_observations[0]).astype(np.uint8)
+                        data_gatherer['idx'] += 1
+                            
+                        if data_gatherer['reset_after_each_frame']:
+                            continue
                     ''' ----- '''
 
-                    # Decide and take an action
-                    take_action_vector, take_action_memories, take_action_text, take_action_outputs = {}, {}, {}, {}
-                    for brain_name, trainer in self.trainers.items():
-                        (take_action_vector[brain_name],
-                        take_action_memories[brain_name],
-                        take_action_text[brain_name],
-                        take_action_outputs[brain_name]) = trainer.take_action(curr_info)
-                    new_info = self.env.step(vector_action=take_action_vector, memory=take_action_memories,
-                                             text_action=take_action_text)
 
                     if settings['store_as_int']:
                         for key in new_info:

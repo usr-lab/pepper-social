@@ -9,11 +9,12 @@ public class PepperAgent : Agent
     public float speed = 0.1f;
     // What the agent is chasing
     public Transform Target;
+    public GameObject cam;
 
     Rigidbody rBody;
 
     private float previousDistance = float.MaxValue;
-    private float previousPotentialLoss = float.MaxValue;	
+    private float previousPotentialLoss = float.MaxValue;
 
     private Rigidbody agentRigidbody;
 
@@ -26,7 +27,15 @@ public class PepperAgent : Agent
     private GroupManager gpManager;
 
 	private MainAgentSocialForce maSocialForce;
-	
+
+    void MoveCamera()
+    {
+      // Vector3 offset = new Vector3(0.0f,1.0f,0.0f);
+        Vector3 offset = 1f*rBody.transform.up + 0.1f*rBody.transform.forward;
+        this.cam.transform.position = transform.position + offset;
+        this.cam.transform.forward = Quaternion.AngleAxis(0, rBody.transform.right) * rBody.transform.forward;
+    }
+
     void Start()
     {
         rBody = GetComponent<Rigidbody>();
@@ -56,10 +65,12 @@ public class PepperAgent : Agent
         this.rBody.angularVelocity = Vector3.zero;
         this.rBody.velocity = Vector3.zero;
         gpManager.ResetAgents();
+        MoveCamera();
     }
 
     public override void CollectObservations()
     {
+		///*
         float arenaEdgefromCenter = ArenaDimensions / 2;
 
         // Calculate relative position
@@ -83,10 +94,10 @@ public class PepperAgent : Agent
 		// Calculate the egocentric reward
 		for(int i = 0; i < gpManager.numberOfAgent; i++)
 
-//		foreach(GameObject agent in gpManager.agents)		
+//		foreach(GameObject agent in gpManager.agents)
 		{
 			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
-//			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;			
+//			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;
 			AddVectorObs(relativePositionAgent.x / arenaEdgefromCenter);
 			AddVectorObs(relativePositionAgent.z / arenaEdgefromCenter);
 			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.x / arenaEdgefromCenter);
@@ -95,6 +106,7 @@ public class PepperAgent : Agent
 //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
 
 		}
+		//*/
 	}
 
 	void CalculateReward()
@@ -103,16 +115,16 @@ public class PepperAgent : Agent
 		float fastEpisodeWeight = 0.2f;
 		float potentialLossWeight = 1f;
 		float noneIncreasingWeight = 12f; // Tendency of not increasing potential loss
-		float tiresomeWeight = 0.4f; 
+		float tiresomeWeight = 0.4f;
 
 		// egocentrism and altruism weights
-		float egoismWeight = 0.05f;
+		float egoismWeight = 0.045f;
 		float altruismWeight = 1f - egoismWeight;
 
 		// Initializing the rewards from two sides
 		float egoismReward = 0f;
 		float altruismReward = 0f;
-		
+
 	    // Checking the ending criteria
 		float distanceToTarget = Vector3.Distance(this.transform.position,
                                                   Target.position);
@@ -125,7 +137,7 @@ public class PepperAgent : Agent
 			egoismReward += potentialLoss * noneIncreasingWeight; // increasing potential penalty
         }
 		AddReward(-rBody.velocity.magnitude * tiresomeWeight);
-		
+
 		// Calculate the egoism reward
 		for(int i = 0; i < gpManager.numberOfAgent; i++)
 		{
@@ -141,7 +153,7 @@ public class PepperAgent : Agent
 			AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egoismWeight); // fast complesion tendensy
             Done();
         }
-		
+
 	}
 
     public override void AgentAction(float[] vectorAction, string textAction)
@@ -165,6 +177,7 @@ public class PepperAgent : Agent
 
 		this.steps = this.steps + 1;
 		//Debug.Log(this.steps);
+		MoveCamera();
 		if (this.steps == this.maxStepsPerEpoch)
         {
             this.steps = 0;

@@ -4,15 +4,16 @@ import numpy as np
 ''' -------------------------------------------------'''
 settings = {
             "store_as_int" : True,
-            "dir_base" : "data/",
-            "project" : "pepperBig_trial3",
+            "dir_base" : "python/data/",
+            "project" : "pepper_fpv",
            }
 
 ''' -----------------------------------------------------------------------------'''
 ''' These control how the conv-net is made and initialized. Happens in models.py '''
 ''' -----------------------------------------------------------------------------'''
 weight_initializer = {
-                        "enabled" : True,
+                        "enabled" : False,
+                        "disable_visual_processing" : True, #This if true, makes the visual process thing return a constant zero-tensor.
                         "file" : "weights",
                         "avg" : "avg_img",
                         "n_convs" : 3,
@@ -36,6 +37,7 @@ data_gatherer = {
                 "n_chunks" : 100,
                 "idx" : 0,
                 "firstRun" : True,
+                "reset_after_each_frame" : False,
                 }
 data_gatherer["size"] = (data_gatherer["n"],)+data_gatherer["obs_size"]
 data_gatherer["data"] = np.empty(data_gatherer['size'], dtype=np.uint8)

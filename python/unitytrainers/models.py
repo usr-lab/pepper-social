@@ -96,13 +96,16 @@ class LearningModel(object):
         :param num_layers: number of hidden layers to create.
         :return: List of hidden layer tensors.
         """
-
+        if weight_initializer['disable_visual_processing']:
+            x = tf.image.resize_images(image_input, (3,3))
+            x = c_layers.flatten(x)
+            const_zero = tf.layers.dense(x, h_size, kernel_initializer=tf.zeros_initializer(), use_bias=False, trainable=False)
+            return const_zero
         #If we store images as ints (0-255), we make sure to convert them to floats in the range (0-1)!
         if settings['store_as_int']:
             x = tf.cast(image_input, dtype=tf.float32)/255.0
         else:
             x = image_input
-
         if weight_initializer["enabled"]:
             '''Say hi!'''
             with open( weight_initializer["init_dir"] + weight_initializer["avg"], 'rb') as file:

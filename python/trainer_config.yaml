@@ -181,8 +181,8 @@ PepperBrain:
     time_horizon: 64
     sequence_length: 128
     summary_freq: 1000
-    use_recurrent: false
-    max_steps: 5.0e7
+    use_recurrent: true
+    max_steps: 5.0e5
     num_layers: 3
     learning_rate: 1.0e-4
     use_recurrent: true

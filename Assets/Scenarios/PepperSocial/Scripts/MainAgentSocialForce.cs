@@ -102,12 +102,8 @@ public class MainAgentSocialForce : MonoBehaviour {
 
 
         Vector3 finalOrientation = equalityOrientation + cohesionOrientation;
-        if (finalOrientation != Vector3.zero)
-        {
-            this.transform.forward = finalOrientation;
-        }
 
-        DrawArrow.ForDebug(transform.position+new Vector3(0.0f,0.9f,0.0f), cohesionForce.normalized, Color.black);
+        DrawArrow.ForDebug(transform.position + new Vector3(0.0f,0.9f,0.0f), cohesionForce.normalized, Color.black);
         DrawArrow.ForDebug(transform.position + new Vector3(0.0f, 0.7f, 0.0f), equalityForce.normalized, Color.red);
         DrawArrow.ForDebug(transform.position + new Vector3(0.0f, 0.5f, 0.0f), repulsiveForce.normalized, Color.yellow);
         DrawArrow.ForDebug(transform.position + new Vector3(0.0f, 0.3f, 0.0f), finalForce.normalized, Color.green);
