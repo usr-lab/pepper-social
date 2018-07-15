@@ -166,23 +166,8 @@ StudentBrain:
     buffer_size: 128
 
 PepperBrain:
-    trainer: ppo
-    batch_size: 1024
-    beta: 5.0e-3
-    buffer_size: 10240
-    epsilon: 0.2
-    gamma: 0.99
-    hidden_units: 128
-    lambd: 0.95
-    max_steps: 5.0e4
-    memory_size: 256
-    normalize: false
-    num_epoch: 3
-    time_horizon: 64
-    sequence_length: 128
-    summary_freq: 1000
+    max_steps: 5.0e7
+    batch_size: 512
+    learning_rate: 5.0e-5
     use_recurrent: true
-    max_steps: 5.0e5
     num_layers: 3
-    learning_rate: 1.0e-4
-    use_recurrent: true

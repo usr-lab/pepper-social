@@ -97,7 +97,7 @@ class LearningModel(object):
         :return: List of hidden layer tensors.
         """
         if weight_initializer['disable_visual_processing']:
-            x = tf.image.resize_images(image_input, (3,3))
+            x = tf.image.resize_images(image_input, (1,1))
             x = c_layers.flatten(x)
             const_zero = tf.layers.dense(x, h_size, kernel_initializer=tf.zeros_initializer(), use_bias=False, trainable=False)
             return const_zero
@@ -113,41 +113,66 @@ class LearningModel(object):
             with open( weight_initializer["init_dir"] + weight_initializer["file"], 'rb') as file:
                 weights = pickle.load(file)
             print("Conv-layers initialized from file: {}".format(weight_initializer["init_dir"] + weight_initializer["file"]))
+            print("-------")
+            print("Weights found in infile:")
             for w in weights:
-                print(w[0].shape)
-
+                print("{} : {}".format(w['layer'],[x.shape for x in w['weights']] ))
+            print("-------")
+            
             avg = tf.convert_to_tensor(avg_val, dtype=None, name=None, preferred_dtype=None)
             x = x - avg
-
+            
             for i in range(weight_initializer["n_convs"]):
-                w_init = tf.initializers.constant(weights[i][0])
-                b_init = tf.initializers.zeros if len(weights[i]) == 1 else tf.initializers.constant(weights[i][1])
+                ''' First we look through the weight file and find a match for the layer we are about to create! '''
+                ''' If we find a match, we create a constant initializer for the weights/biases as needed. Else: crash!'''
+                weight_idx = -1
+                for n, w in enumerate(weights):
+                    if w['layer'] in ["conv_{}".format(i+1), "conv{}".format(i+1)]:
+                        weight_idx = n
+                        w_init = tf.initializers.constant(w['weights'][1])
+                        b_init = tf.initializers.zeros if len(w['weights']) == 1 else tf.initializers.constant(w['weights'][0])
+                        name = "conv{}".format(n+1)
+                        print("Found layer in file! {} : {}".format(w['layer'] , [x.shape for x in w['weights']] ))
+                if weight_idx == -1:
+                    print("Found NO weights for conv{}".format(i+1))
+                    exit()
+
+
+                ''' Create the layer with weights from the file, and settings from custom_settings.py '''
                 x = tf.layers.conv2d(
                                  x,
                                  weight_initializer['conv_depths'][i],
-                                 padding='same',
+                                 padding=weight_initializer['conv_padding'],
                                  kernel_size=weight_initializer['conv_sizes'][i],
                                  strides=weight_initializer['conv_strides'][i],
                                  activation=tf.nn.elu,
                                  kernel_initializer=w_init,
-                                 bias_initializer=b_init
-                                )
-                print("---")
-                print("Layer: {}".format(x))
-                print("weights: {}".format([w.shape for w in weights[i]]))
-            x = tf.layers.max_pooling2d(
-                                        x,
-                                        pool_size=(2,2),
-                                        strides=(2,2),
-                                        padding='valid',
-                                        data_format='channels_last',
-                                        name=None
+                                 bias_initializer=b_init,
+                                 trainable=weight_initializer['trainable_convs']
                                 )
 
-            x = c_layers.flatten(x)
+            #x = tf.layers.max_pooling2d(
+            #                            x,
+            #                            pool_size=(2,2),
+            #                            strides=(2,2),
+            #                            padding='valid',
+            #                            data_format='channels_last',
+            #                            name=None
+            #                    )
+            
+            if weight_initializer['spatial_AE']:
+                print("Added spatial soft-argmax-layer.")
+                x = weight_initializer['softargmax_layer'](x)
+                x = tf.reshape(x, shape=[-1, 3 * weight_initializer['conv_depths'][2]], name="reshaped")
+
+            else:
+                x = c_layers.flatten(x)
+
             for i in range(weight_initializer["n_dense"]):
                 x = tf.layers.dense(x, weight_initializer["hidden_size"], use_bias=False, activation=activation)
             hidden = x
+            print("Verify the initialization. If correct press [enter]")
+            input()
         else:
             conv1 = tf.layers.conv2d(image_input, 16, kernel_size=[8, 8], strides=[4, 4],
                                  activation=tf.nn.elu)

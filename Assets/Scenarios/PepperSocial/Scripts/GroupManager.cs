@@ -58,6 +58,7 @@ public class GroupManager : MonoBehaviour {
         agentPrefab = Resources.Load("Prefab/Agent") as GameObject;
 		float angle = Random.Range (0f, Mathf.PI * 2);
 		//Debug.Log(numberOfAgent);
+		
         for (int i = 0; i < numberOfAgent; i++)
         {
             float directionFacing = Random.Range(0f, 360f);

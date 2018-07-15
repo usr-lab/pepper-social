@@ -1,11 +1,12 @@
 import numpy as np
+from initialization.spatial_softmax import *
 ''' -------------------------------------------------'''
 ''' General settings.                                '''
 ''' -------------------------------------------------'''
 settings = {
             "store_as_int" : True,
             "dir_base" : "python/data/",
-            "project" : "pepper_fpv",
+            "project" : "pepperBig_spatialTest2",
            }
 
 ''' -----------------------------------------------------------------------------'''
@@ -13,13 +14,17 @@ settings = {
 ''' -----------------------------------------------------------------------------'''
 weight_initializer = {
                         "enabled" : False,
-                        "disable_visual_processing" : True, #This if true, makes the visual process thing return a constant zero-tensor.
+                        "disable_visual_processing" : True, #This if true, makes the visual process thing return a constant zero-tensor. EVEN IF enabled IS SET TO FALSE!
+                        "spatial_AE" : True,
+                        "softargmax_layer" : spatial_soft_argmax,
+                        "trainable_convs" : False,
                         "file" : "weights",
                         "avg" : "avg_img",
                         "n_convs" : 3,
-                        "conv_depths" : [32, 32, 16],
+                        "conv_depths" : [64, 32, 16],
                         "conv_strides" : [(1,1), (1,1), (1,1)],
-                        "conv_sizes" : [(5,5), (5,5), (5,5)],
+                        "conv_sizes" : [(7,7), (5,5), (5,5)],
+                        "conv_padding" : "valid",
                         "hidden_size" : 400,
                         "n_dense" : 2,
                      }

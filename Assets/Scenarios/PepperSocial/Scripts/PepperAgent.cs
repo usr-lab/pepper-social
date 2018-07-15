@@ -46,7 +46,7 @@ public class PepperAgent : Agent
         }
 
 		maSocialForce = this.GetComponent<MainAgentSocialForce>();
-		maxStepsPerEpoch = 300;
+		maxStepsPerEpoch = 1000;
     }
 
     public override void AgentReset()
@@ -56,7 +56,6 @@ public class PepperAgent : Agent
         this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
                                             0.16f,
                                             (Random.value * allowedArea) - (allowedArea / 2));
-
 		float targetAllowedArea = ArenaDimensions * 0.6f;
 		Target.transform.position = new Vector3((Random.value * targetAllowedArea) - (targetAllowedArea / 2),
                               0.16f,
@@ -106,38 +105,41 @@ public class PepperAgent : Agent
 //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
 
 		}
-		//*/
+
 	}
 
 	void CalculateReward()
 	{
-		// Setting weights for rewards
-		float fastEpisodeWeight = 0.2f;
-		float potentialLossWeight = 1f;
-		float noneIncreasingWeight = 12f; // Tendency of not increasing potential loss
-		float tiresomeWeight = 0.4f;
+	 	// Setting weights for rewards
+	 	float fastEpisodeWeight = 0.0f;
+	 	float potentialLossWeight = 1f;
+	 	float noneIncreasingWeight = 8f; // Tendency of not increasing potential loss
+	 	float tiresomeWeight = 0.0f;
 
-		// egocentrism and altruism weights
-		float egoismWeight = 0.045f;
-		float altruismWeight = 1f - egoismWeight;
+	 	// egocentrism and altruism weights
+	 	float egoismWeight = 0.02f;
+	 	float altruismWeight = 1f - egoismWeight;
 
-		// Initializing the rewards from two sides
-		float egoismReward = 0f;
-		float altruismReward = 0f;
+	 	// Initializing the rewards from two sides
+	 	float egoismReward = 0f;
+	 	float altruismReward = 0f;
 
-	    // Checking the ending criteria
-		float distanceToTarget = Vector3.Distance(this.transform.position,
-                                                  Target.position);
-
+	    // Checking the ending crfdfd
+	 	float distanceToTarget = Vector3.Distance(this.transform.position,
+												  Target.position);
 		// Calculate the egoism reward
 		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
 		egoismReward += potentialLoss * potentialLossWeight; 		// Potential loss is the reward
-        if (potentialLoss < 0f)
+
+		
+		if (potentialLoss < 0f)
+
         {
 			egoismReward += potentialLoss * noneIncreasingWeight; // increasing potential penalty
         }
-		AddReward(-rBody.velocity.magnitude * tiresomeWeight);
 
+		egoismReward += (-rBody.velocity.magnitude * tiresomeWeight);
+		
 		// Calculate the egoism reward
 		for(int i = 0; i < gpManager.numberOfAgent; i++)
 		{
@@ -148,19 +150,17 @@ public class PepperAgent : Agent
 
 		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 		// Calculate the final reward
-        if (distanceToTarget < gpManager.oSpace)
-        {
-			AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egoismWeight); // fast complesion tendensy
-            Done();
-        }
-
+        //if (distanceToTarget < gpManager.oSpace)
+        //{
+		//	AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egoismWeight); // fast complesion tendensy
+		//	Done();
+        //}
 	}
 
     public override void AgentAction(float[] vectorAction, string textAction)
     {
 
 		CalculateReward();
-
         // Set orientation
         Vector3 deltaPosition = Target.position - transform.position;
         if (deltaPosition != Vector3.zero)
@@ -168,7 +168,6 @@ public class PepperAgent : Agent
             // Same effect as rotating with quaternions, but simpler to read
             transform.forward = deltaPosition;
         }
-
 		// Perform action
         Vector3 controlSignal = Vector3.zero;
         controlSignal.x = Mathf.Clamp(vectorAction[0], -1, 1);
