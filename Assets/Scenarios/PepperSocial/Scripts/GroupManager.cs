@@ -71,12 +71,13 @@ public class GroupManager : MonoBehaviour {
             if (i == 0)
             {
                 Renderer rend = agent.gameObject.transform.Find("Pepper").GetComponent<Renderer>();
-                rend.material.color = Color.white;
+                rend.material.color = Color.blue;
             }
             else
             {
                 Renderer rend = agent.gameObject.transform.Find("Pepper").GetComponent<Renderer>();
-                rend.material.color = new Color32(60, 60, 60, 255);
+                //rend.material.color = new Color32(60, 60, 60 , 255);
+                rend.material.color = Color.green;
             }
 			agent.transform.localScale = Vector3.one;
 			agents[i] = agent;
