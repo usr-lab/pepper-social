@@ -68,6 +68,16 @@ public class GroupManager : MonoBehaviour {
             Vector3 point = new Vector3(x, 0f, z) * oSpace + this.transform.position;
             point.y = this.transform.position.y;
             GameObject agent = Instantiate(agentPrefab, point, Quaternion.Euler(new Vector3(0f, directionFacing, 0f))) as GameObject;
+            if (i == 0)
+            {
+                Renderer rend = agent.gameObject.transform.Find("Pepper").GetComponent<Renderer>();
+                rend.material.color = Color.white;
+            }
+            else
+            {
+                Renderer rend = agent.gameObject.transform.Find("Pepper").GetComponent<Renderer>();
+                rend.material.color = new Color32(60, 60, 60, 255);
+            }
 			agent.transform.localScale = Vector3.one;
 			agents[i] = agent;
             sumAgents.Add(agent);
