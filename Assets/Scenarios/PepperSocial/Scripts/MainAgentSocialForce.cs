@@ -26,7 +26,7 @@ public class MainAgentSocialForce : MonoBehaviour {
 	public Vector3 finalForce = Vector3.zero;
 
     private Rigidbody rBody;
-	private bool applyForce = true;
+	private bool applyForce = false;
 	
     // Use this for initialization
     void Start () {
