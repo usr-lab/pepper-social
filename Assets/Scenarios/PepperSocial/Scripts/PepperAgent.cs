@@ -226,8 +226,21 @@ public class PepperAgent : Agent
 
 	public void SavePositions()
 	{
-		string json = JsonUtility.ToJson(transform.position);
-		Debug.Log(json);
+		using (StreamWriter w = File.AppendText("agent.txt"))
+        {
+			string agentPosition = JsonUtility.ToJson(transform.position);
+            Log(agentPosition, w);
+        }
+		for(int i = 0; i < gpManager.numberOfAgent; i++)
+		{
+			using (StreamWriter w = File.AppendText("human_"+i.ToString()+".txt"))
+			{
+				string humanPosition = JsonUtility.ToJson(gpManager.agents[i].transform.position);
+				Log(humanPosition, w);
+			}
+		}
+		
+		
 	}
     public override void AgentAction(float[] vectorAction, string textAction)
     {
