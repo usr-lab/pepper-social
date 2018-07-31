@@ -224,8 +224,14 @@ public class PepperAgent : Agent
         }
 	}
 
+	public void SavePositions()
+	{
+		string json = JsonUtility.ToJson(transform.position);
+		Debug.Log(json);
+	}
     public override void AgentAction(float[] vectorAction, string textAction)
     {
+		SavePositions();
 
 		CalculateReward();
         // Set orientation
