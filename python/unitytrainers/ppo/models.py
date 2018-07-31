@@ -8,7 +8,7 @@ logger = logging.getLogger("unityagents")
 
 class PPOModel(LearningModel):
     def __init__(self, brain, lr=1e-4, h_size=128, epsilon=0.2, beta=1e-3, max_step=5e6,
-                 normalize=False, use_recurrent=False, num_layers=2, m_size=None):
+                 normalize=False, use_recurrent=False, num_layers=2, m_size=None, use_data_gatherer=False):
         """
         Takes a Unity environment and model-specific hyper-parameters and returns the
         appropriate PPO agent model for the environment.
@@ -29,7 +29,7 @@ class PPOModel(LearningModel):
             num_layers = 1
         self.last_reward, self.new_reward, self.update_reward = self.create_reward_encoder()
         if brain.vector_action_space_type == "continuous":
-            self.create_cc_actor_critic(h_size, num_layers)
+            self.create_cc_actor_critic(h_size, num_layers, use_data_gatherer=use_data_gatherer)
             self.entropy = tf.ones_like(tf.reshape(self.value, [-1])) * self.entropy
         else:
             self.create_dc_actor_critic(h_size, num_layers)

@@ -27,7 +27,13 @@ public class PepperAgent : Agent
     private GroupManager gpManager;
 
 	private MainAgentSocialForce maSocialForce;
-
+	
+	private bool demoMode = true;
+	private int demoTrack = 0;
+	private float allowedArea;
+	private List<Vector3> lPositions = new List<Vector3>();
+	private List<Vector3> groupPositions = new List<Vector3>();
+				  
     void MoveCamera()
     {
       // Vector3 offset = new Vector3(0.0f,1.0f,0.0f);
@@ -47,34 +53,90 @@ public class PepperAgent : Agent
 
 		maSocialForce = this.GetComponent<MainAgentSocialForce>();
 		maxStepsPerEpoch = 1000;
+
+
+
+		allowedArea = ArenaDimensions * 0.9f;
+		lPositions.Add(new Vector3(0.2f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.2f*allowedArea - allowedArea / 2));
+
+
+		lPositions.Add(new Vector3(0.5f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.2f*allowedArea - allowedArea / 2));
+		
+
+		lPositions.Add(new Vector3(0.8f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.2f*allowedArea - allowedArea / 2));
+
+		lPositions.Add(new Vector3(0.2f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.45f*allowedArea - allowedArea / 2));
+
+		lPositions.Add(new Vector3(0.8f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.55f*allowedArea - allowedArea / 2));
+		
+		lPositions.Add(new Vector3(0.2f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.8f*allowedArea - allowedArea / 2));
+
+		lPositions.Add(new Vector3(0.5f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.8f*allowedArea - allowedArea / 2));
+
+		lPositions.Add(new Vector3(0.8f*allowedArea - allowedArea / 2,
+								   0.16f,
+								   0.8f*allowedArea - allowedArea / 2));
+		
+		groupPositions.Add(new Vector3(0.5f*allowedArea - allowedArea / 2,
+									   0.16f,
+									   0.5f*allowedArea - allowedArea / 2));
+
+
     }
 
     public override void AgentReset()
     {
-        float allowedArea = ArenaDimensions * 0.9f;
+		if(!demoMode)
+		{
+			float allowedArea = ArenaDimensions * 0.9f;
+			
+			this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
+												  0.16f,
+												  (Random.value * allowedArea) - (allowedArea / 2));
+			float targetAllowedArea = ArenaDimensions * 0.6f;
+			Target.transform.position = new Vector3((Random.value * targetAllowedArea) - (targetAllowedArea / 2),
+													0.16f,
+													(Random.value * targetAllowedArea) - (targetAllowedArea / 2));
+			
+			this.rBody.angularVelocity = Vector3.zero;
+			this.rBody.velocity = Vector3.zero;
+			float angle = Random.Range (0f, Mathf.PI * 2);
+			gpManager.ResetAgents(angle);
+			MoveCamera();
+		}
+		else{
 
-        this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
-                                            0.16f,
-                                            (Random.value * allowedArea) - (allowedArea / 2));
-		float targetAllowedArea = ArenaDimensions * 0.6f;
-		Target.transform.position = new Vector3((Random.value * targetAllowedArea) - (targetAllowedArea / 2),
-                              0.16f,
-                             (Random.value * targetAllowedArea) - (targetAllowedArea / 2));
-
-        this.rBody.angularVelocity = Vector3.zero;
-        this.rBody.velocity = Vector3.zero;
-        gpManager.ResetAgents();
-        MoveCamera();
-    }
+			this.transform.position = lPositions[demoTrack%8];
+			Target.transform.position =groupPositions[0];
+			this.rBody.angularVelocity = Vector3.zero;
+			this.rBody.velocity = Vector3.zero;
+			gpManager.ResetAgents(90/360f * Mathf.PI*2);
+			MoveCamera();
+			demoTrack = demoTrack + 1;
+		}
+	}
 
     public override void CollectObservations()
     {
-		///*
-        float arenaEdgefromCenter = ArenaDimensions / 2;
 
+        float arenaEdgefromCenter = ArenaDimensions / 2;
         // Calculate relative position
         Vector3 relativePosition = Target.position - this.transform.position;
-
+		///*
         // Relative position
         AddVectorObs(relativePosition.x / arenaEdgefromCenter);
         AddVectorObs(relativePosition.z / arenaEdgefromCenter);
@@ -104,20 +166,21 @@ public class PepperAgent : Agent
 //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
 //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
 
-		}
+		}//*/
+
 
 	}
 
 	void CalculateReward()
 	{
 	 	// Setting weights for rewards
-	 	float fastEpisodeWeight = 0.0f;
-	 	float potentialLossWeight = 1f;
-	 	float noneIncreasingWeight = 8f; // Tendency of not increasing potential loss
-	 	float tiresomeWeight = 0.0f;
+	 	//float fastEpisodeWeight = 0.00001f;
+	 	float potentialLossWeight = 0.012f;
+	 	float noneIncreasingWeight = 2.4f; // Tendency of not increasing potential loss
+	 	float tiresomeWeight = 0.16f;
 
 	 	// egocentrism and altruism weights
-	 	float egoismWeight = 0.02f;
+	 	float egoismWeight = 0.0045f;
 	 	float altruismWeight = 1f - egoismWeight;
 
 	 	// Initializing the rewards from two sides
@@ -129,32 +192,36 @@ public class PepperAgent : Agent
 												  Target.position);
 		// Calculate the egoism reward
 		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
-		egoismReward += potentialLoss * potentialLossWeight; 		// Potential loss is the reward
+		egoismReward += potentialLoss * potentialLossWeight; 		// 1)
 
 		
-		if (potentialLoss < 0f)
-
+		if (potentialLoss > 0f)
         {
-			egoismReward += potentialLoss * noneIncreasingWeight; // increasing potential penalty
+			egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
         }
 
-		egoismReward += (-rBody.velocity.magnitude * tiresomeWeight);
-		
-		// Calculate the egoism reward
+		// Calculate the altruism reward
 		for(int i = 0; i < gpManager.numberOfAgent; i++)
 		{
 			altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
-										   gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity);
+										   gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
+			altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
 
 		}
+		egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
 
+		// Step cost
+		egoismReward += -1.0f; //3)
+	   
 		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
+		
 		// Calculate the final reward
-        //if (distanceToTarget < gpManager.oSpace)
-        //{
-		//	AddReward(((this.maxStepsPerEpoch-this.steps) * fastEpisodeWeight) * egoismWeight); // fast complesion tendensy
-		//	Done();
-        //}
+        if (distanceToTarget < gpManager.oSpace)
+        {
+			this.steps = 0;
+			AddReward(1f); // fast complesion tendensy
+			Done();
+        }
 	}
 
     public override void AgentAction(float[] vectorAction, string textAction)
@@ -169,10 +236,13 @@ public class PepperAgent : Agent
             transform.forward = deltaPosition;
         }
 		// Perform action
-        Vector3 controlSignal = Vector3.zero;
-        controlSignal.x = Mathf.Clamp(vectorAction[0], -1, 1);
-        controlSignal.z = Mathf.Clamp(vectorAction[1], -1, 1);
-        rBody.AddForce(controlSignal * speed);
+        //Vector3 controlSignal = Vector3.zero;
+        //controlSignal.x = Mathf.Clamp(vectorAction[0], -1, 1);
+        //controlSignal.z = Mathf.Clamp(vectorAction[1], -1, 1);
+        //rBody.AddForce(controlSignal * speed);
+
+		Debug.Log(vectorAction[0]);
+		HandleMovement(vectorAction);
 
 		this.steps = this.steps + 1;
 		//Debug.Log(this.steps);
@@ -185,35 +255,26 @@ public class PepperAgent : Agent
     }
     private void HandleMovement(float[] action)
     {
-        Vector3 dirToGo = Vector3.zero;
-        Vector3 rotateDir = Vector3.zero;
+        Vector3 mForward = Vector3.zero;
+        Vector3 mSideway = Vector3.zero;
+		moveSpeed= 0.1f;
 
         if (brain.brainParameters.vectorActionSpaceType == SpaceType.continuous)
         {
-            dirToGo = transform.forward * Mathf.Clamp(action[0], -1f, 1f);
-            rotateDir = transform.up * Mathf.Clamp(action[1], -1f, 1f);
+            mForward = transform.forward * Mathf.Clamp(action[0], -1f, 1f);
+            mSideway = transform.right * Mathf.Clamp(action[1], -1f, 1f);
         }
         else
         {
-            switch ((int)(action[0]))
-            {
-                case 1:
-                    dirToGo = -transform.forward;
-                    break;
-                case 2:
-                    rotateDir = -transform.up;
-                    break;
-                case 3:
-                    rotateDir = transform.up;
-                    break;
-            }
+			
         }
-        agentRigidbody.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
-        transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
+        rBody.AddForce((mForward+mSideway) * moveSpeed, ForceMode.VelocityChange);
+		
+        //transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
 
-        if (agentRigidbody.velocity.sqrMagnitude > 25f) // slow it down
+        if (rBody.velocity.sqrMagnitude > 25f) // slow it down
         {
-            agentRigidbody.velocity *= 0.95f;
+            rBody.velocity *= 0.95f;
         }
 
 

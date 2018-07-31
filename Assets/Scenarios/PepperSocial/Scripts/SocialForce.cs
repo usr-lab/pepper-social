@@ -26,7 +26,8 @@ public class SocialForce : MonoBehaviour {
 	private Vector3 finalForce = Vector3.zero;
 	private Vector3 repulsiveForce = Vector3.zero;
 
-    private Rigidbody rBody;
+	[HideInInspector]
+    public Rigidbody rBody;
 
 	// Use this for initialization
     void Start () {
@@ -56,6 +57,11 @@ public class SocialForce : MonoBehaviour {
 	public Vector3 GetFinalForce() {
 		return this.finalForce;
 	}
+
+	public Vector3 GetRepulsiveForce() {
+		return this.repulsiveForce;
+	}
+	
 	public Rigidbody GetrBody() {
 		return this.gameObject.GetComponent<Rigidbody>();
 	}
@@ -138,8 +144,8 @@ public class SocialForce : MonoBehaviour {
         DrawArrow.ForDebug(transform.position + new Vector3(0.0f, 0.3f, 0.0f), finalForce.normalized, Color.green);
 
         DrawAreas(personalDistance, Color.red, lineDrawPrefabPersonal.GetComponent<LineRenderer>());
-        DrawAreas(socialDistance, Color.yellow, lineDrawPrefabSocial.GetComponent<LineRenderer>());
-        DrawAreas(publicDistance, Color.green, lineDrawPrefabPublic.GetComponent<LineRenderer>());
+        //DrawAreas(socialDistance, Color.yellow, lineDrawPrefabSocial.GetComponent<LineRenderer>());
+        //DrawAreas(publicDistance, Color.green, lineDrawPrefabPublic.GetComponent<LineRenderer>());
     }
 
     void GetReplusiveForce(float deltaP, float dMin, List<Vector3> listR, Vector3 r, out Vector3 force)

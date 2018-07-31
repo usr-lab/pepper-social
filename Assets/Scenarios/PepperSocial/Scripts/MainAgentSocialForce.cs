@@ -25,6 +25,9 @@ public class MainAgentSocialForce : MonoBehaviour {
 
 	public Vector3 finalForce = Vector3.zero;
 
+    private Rigidbody rBody;
+	private bool applyForce = true;
+	
     // Use this for initialization
     void Start () {
         gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
@@ -37,6 +40,12 @@ public class MainAgentSocialForce : MonoBehaviour {
         lineDrawPrefabPersonal = GameObject.Instantiate(lineDrawPrefab) as GameObject;
         lineDrawPrefabSocial = GameObject.Instantiate(lineDrawPrefab) as GameObject;
         lineDrawPrefabPublic = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+		rBody = this.gameObject.GetComponent<Rigidbody>();
+        if (!rBody)
+        {
+            Debug.LogError("RigidBody was not attached");
+        }
+
     }
 	
 	// Update is called once per frame
@@ -99,6 +108,11 @@ public class MainAgentSocialForce : MonoBehaviour {
         }
 
         finalForce += repulsiveForce.normalized;
+		if(applyForce)
+		{
+			Debug.Log(finalForce.magnitude);
+			rBody.AddForce(finalForce.normalized * 0.7f, ForceMode.Force);
+		}
 
 
         Vector3 finalOrientation = equalityOrientation + cohesionOrientation;
@@ -109,8 +123,8 @@ public class MainAgentSocialForce : MonoBehaviour {
         DrawArrow.ForDebug(transform.position + new Vector3(0.0f, 0.3f, 0.0f), finalForce.normalized, Color.green);
 
         DrawAreas(personalDistance, Color.red, lineDrawPrefabPersonal.GetComponent<LineRenderer>());
-        DrawAreas(socialDistance, Color.yellow, lineDrawPrefabSocial.GetComponent<LineRenderer>());
-        DrawAreas(publicDistance, Color.green, lineDrawPrefabPublic.GetComponent<LineRenderer>());
+        //DrawAreas(socialDistance, Color.yellow, lineDrawPrefabSocial.GetComponent<LineRenderer>());
+        //DrawAreas(publicDistance, Color.green, lineDrawPrefabPublic.GetComponent<LineRenderer>());
     }
 
     void GetReplusiveForce(float deltaP, float dMin, List<Vector3> listR, Vector3 r, out Vector3 force)

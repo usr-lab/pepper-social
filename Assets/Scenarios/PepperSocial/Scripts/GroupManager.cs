@@ -38,6 +38,9 @@ public class GroupManager : MonoBehaviour {
 		oCenter = this.transform.position;		
 		centerSphere.transform.position = oCenter;
 
+
+		centerSphere.GetComponent<SphereCollider>().enabled = false;
+		centerSphere.GetComponent<MeshRenderer>().enabled = false;
         //InitGroupCenter();
 		
         lineDrawPrefab = Resources.Load("Prefab/lineDrawPrefab") as GameObject;
@@ -90,9 +93,9 @@ public class GroupManager : MonoBehaviour {
         sumAgents.Add(agent);
     }
 
-    public void ResetAgents()
+    public void ResetAgents(float angle)
     {
-		float angle = Random.Range (0f, Mathf.PI * 2);
+
 		oCenter = this.transform.position;		
 		centerSphere.transform.position = oCenter;
 		
@@ -108,6 +111,8 @@ public class GroupManager : MonoBehaviour {
             Vector3 point = new Vector3(x, 0f, z) * oSpace + this.transform.position;
             point.y = this.transform.position.y;
             agents[i].transform.position = point;
+			agentsSocialForces[i].rBody.angularVelocity = Vector3.zero;
+			agentsSocialForces[i].rBody.velocity = Vector3.zero;
             agents[i].transform.forward = new Vector3(Mathf.Cos(directionFacing * Mathf.PI / 180.0f), 0.0f, Mathf.Sin(directionFacing * Mathf.PI / 180.0f));
         }
     }
@@ -146,7 +151,7 @@ public class GroupManager : MonoBehaviour {
         }
         oCenter = center / sumAgents.Count;
     }
-
+	
     void DrawAreas(float radius, Color color, LineRenderer lineDrawer)
     {
         lineDrawer.SetWidth(0.05f, 0.05f);

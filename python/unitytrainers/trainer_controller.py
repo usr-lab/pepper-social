@@ -44,6 +44,10 @@ class TrainerController(object):
         :param docker_target_name: Name of docker volume that will contain all data.
         :param trainer_config_path: Fully qualified path to location of trainer configuration file
         """
+
+        ''' Here's a small change (this only happens if code is launched with the '--data-gatherer' flag) '''
+        self.use_data_gatherer = use_data_gatherer
+
         self.trainer_config_path = trainer_config_path
         env_path = (env_path.strip()
                     .replace('.app', '')
@@ -89,11 +93,6 @@ class TrainerController(object):
                                     curriculum=self.curriculum_file, seed=self.seed,
                                     docker_training=self.docker_training)
         self.env_name = os.path.basename(os.path.normpath(env_path))  # Extract out name of environment
-
-        ''' Here's a small change (this only happens if code is launched with the '--data-gatherer' flag) '''
-        self.use_data_gatherer = use_data_gatherer
-        #if use_data_gatherer:
-        #    self.train_model = True
 
     def _get_progress(self):
         if self.curriculum_file is not None:
@@ -154,11 +153,14 @@ class TrainerController(object):
         """
         target_nodes = ','.join(self._process_graph())
         ckpt = tf.train.get_checkpoint_state(self.model_path)
+
+
         freeze_graph.freeze_graph(input_graph=self.model_path + '/raw_graph_def.pb',
                                   input_binary=True,
                                   input_checkpoint=ckpt.model_checkpoint_path,
                                   output_node_names=target_nodes,
-                                  output_graph=self.model_path + '/' + self.env_name + "_" + self.run_id + '.bytes',
+                                  ######## FOLOWING LINE UGLY FIX: only return first 20 characters of run_id ######
+                                  output_graph=self.model_path + '/' + self.env_name + "_" + self.run_id[:20] + '.bytes',
                                   clear_devices=True, initializer_nodes="", input_saver="",
                                   restore_op_name="save/restore_all", filename_tensor_name="save/Const:0")
 
@@ -192,7 +194,7 @@ class TrainerController(object):
                                                                      self.train_model, self.seed)
             elif trainer_parameters_dict[brain_name]['trainer'] == "ppo":
                 self.trainers[brain_name] = PPOTrainer(sess, self.env, brain_name, trainer_parameters_dict[brain_name],
-                                                       self.train_model, self.seed)
+                                                       self.train_model, self.seed, self.use_data_gatherer)
             else:
                 raise UnityEnvironmentException("The trainer config contains an unknown trainer type for brain {}"
                                                 .format(brain_name))
@@ -279,7 +281,20 @@ class TrainerController(object):
                             print("Now we just sample stats from the initial distribution and save them:")
                             print("Save dir: {}".format(data_gatherer['dir']))
                             print("---")
-                            print("If you did not expect to see this, it means someone turned on data_gatherer and did not turn it off again. (sorry). SOLUTION: go to line 20 in trainer_controller.py and set it to False... (enter to continue)")
+                            print("If you did not expect to see this, NOW is the time to [ctrl-C]! (otherwise: [enter] to continue...)")
+                            
+                            ''' Create the folder-structure if it is needed: '''
+                            paths = [
+                                        settings['dir_base'],
+                                        settings['dir_base']+settings['project'],
+                                        data_gatherer['dir']
+                                    ]
+                            for p in paths:
+                                if not os.path.isdir(p):
+                                    os.makedirs(p)
+                                    print("Created path: {}".format(p))
+                                else:
+                                    print("Reusing existing: {}".format(p))
                             ape = input()
                             data_gatherer['firstRun'] = False
 

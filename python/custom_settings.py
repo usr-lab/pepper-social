@@ -6,16 +6,19 @@ from initialization.spatial_softmax import *
 settings = {
             "store_as_int" : True,
             "dir_base" : "python/data/",
-            "project" : "pepperBig_spatialTest2",
+            "project" : "AE_comp_4/",
            }
 
 ''' -----------------------------------------------------------------------------'''
 ''' These control how the conv-net is made and initialized. Happens in models.py '''
 ''' -----------------------------------------------------------------------------'''
 weight_initializer = {
-                        "enabled" : False,
-                        "disable_visual_processing" : True, #This if true, makes the visual process thing return a constant zero-tensor. EVEN IF enabled IS SET TO FALSE!
-                        "spatial_AE" : True,
+                        "enabled" : True,
+                        "disable_visual_processing" : False, #This if true, makes the visual process thing return a constant zero-tensor. EVEN IF enabled IS SET TO FALSE!
+                        "batch_normalization" : True,
+                        "use_avg" : False,
+                        "spatial_AE" : False,
+                        "pretrained_dense_encoder" : 512, #Set to None to deactivate!
                         "softargmax_layer" : spatial_soft_argmax,
                         "trainable_convs" : False,
                         "file" : "weights",

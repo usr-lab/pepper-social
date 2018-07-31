@@ -97,7 +97,7 @@ class LearningModel(object):
         :return: List of hidden layer tensors.
         """
         if weight_initializer['disable_visual_processing']:
-            x = tf.image.resize_images(image_input, (1,1))
+            x = tf.image.resize_images(image_input, (3,3))
             x = c_layers.flatten(x)
             const_zero = tf.layers.dense(x, h_size, kernel_initializer=tf.zeros_initializer(), use_bias=False, trainable=False)
             return const_zero
@@ -106,37 +106,46 @@ class LearningModel(object):
             x = tf.cast(image_input, dtype=tf.float32)/255.0
         else:
             x = image_input
-        if weight_initializer["enabled"]:
+        if weight_initializer["enabled"] and not self.use_data_gatherer:
             '''Say hi!'''
-            with open( weight_initializer["init_dir"] + weight_initializer["avg"], 'rb') as file:
-                avg_val = pickle.load(file)
             with open( weight_initializer["init_dir"] + weight_initializer["file"], 'rb') as file:
                 weights = pickle.load(file)
             print("Conv-layers initialized from file: {}".format(weight_initializer["init_dir"] + weight_initializer["file"]))
             print("-------")
             print("Weights found in infile:")
             for w in weights:
-                print("{} : {}".format(w['layer'],[x.shape for x in w['weights']] ))
+                print("{} : {}".format(w['layer'],[w['weights'][x].shape for x in w['weights']] ))
             print("-------")
             
-            avg = tf.convert_to_tensor(avg_val, dtype=None, name=None, preferred_dtype=None)
-            x = x - avg
+            if weight_initializer['use_avg']:
+                with open( weight_initializer["init_dir"] + weight_initializer["avg"], 'rb') as file:
+                    avg_val = pickle.load(file)
+                avg = tf.convert_to_tensor(avg_val[0,:,:,:].astype(np.float32), dtype=None, name=None, preferred_dtype=None)
+                x = x - avg
             
             for i in range(weight_initializer["n_convs"]):
                 ''' First we look through the weight file and find a match for the layer we are about to create! '''
                 ''' If we find a match, we create a constant initializer for the weights/biases as needed. Else: crash!'''
                 weight_idx = -1
+                bn_idx = -1
                 for n, w in enumerate(weights):
                     if w['layer'] in ["conv_{}".format(i+1), "conv{}".format(i+1)]:
                         weight_idx = n
-                        w_init = tf.initializers.constant(w['weights'][1])
-                        b_init = tf.initializers.zeros if len(w['weights']) == 1 else tf.initializers.constant(w['weights'][0])
-                        name = "conv{}".format(n+1)
-                        print("Found layer in file! {} : {}".format(w['layer'] , [x.shape for x in w['weights']] ))
+                        w_init = tf.initializers.constant(w['weights']['kernel'])
+                        b_init = tf.initializers.constant(w['weights']['bias']) if 'bias' in w['weights'] else tf.initializers.zeros()
+                        print("Found layer in file! {} : {}".format(w['layer'] , [w['weights'][x].shape for x in w['weights']] ) )
+                    if w['layer'] in ["batch_normalization_{}".format(3+i)] and weight_initializer['batch_normalization']:
+                        bn_idx = n
+                        beta_init  = tf.initializers.constant(w['weights']['beta'])
+                        gamma_init = tf.initializers.constant(w['weights']['gamma'])                        
+                        print("Found layer in file! {} : {}".format(w['layer'] , [w['weights'][x].shape for x in w['weights']] ) )
+                        
                 if weight_idx == -1:
                     print("Found NO weights for conv{}".format(i+1))
                     exit()
-
+                if bn_idx == -1 and weight_initializer['batch_normalization']:
+                    print("Found NO weights for batch normlization_{}".format(i+1))
+                    exit()
 
                 ''' Create the layer with weights from the file, and settings from custom_settings.py '''
                 x = tf.layers.conv2d(
@@ -150,25 +159,53 @@ class LearningModel(object):
                                  bias_initializer=b_init,
                                  trainable=weight_initializer['trainable_convs']
                                 )
-
-            #x = tf.layers.max_pooling2d(
-            #                            x,
-            #                            pool_size=(2,2),
-            #                            strides=(2,2),
-            #                            padding='valid',
-            #                            data_format='channels_last',
-            #                            name=None
-            #                    )
-            
+                if weight_initializer['batch_normalization']:
+                    x = tf.layers.batch_normalization(x, 
+                                                      center=True, 
+                                                      scale=True, 
+                                                      training=tf.constant(False),
+                                                      beta_initializer=beta_init,
+                                                      gamma_initializer=gamma_init
+                                                      )
             if weight_initializer['spatial_AE']:
-                print("Added spatial soft-argmax-layer.")
-                x = weight_initializer['softargmax_layer'](x)
+                alpha_init = None
+                print("Added spatial soft-argmax-layer.")    
+                for n, w in enumerate(weights):
+                    if w['layer'] in ["spatial_soft_argmax"]:
+                        alpha_init = w['weights']['alpha']
+                        print("Found layer in file! {} : {}".format(w['layer'] , [w['weights'][x].shape for x in w['weights']] ) )
+                if alpha_init is None:
+                    print("Found no initializer for alpha!!! (critical error, exiting...)")
+                    exit()
+                x = weight_initializer['softargmax_layer'](x, alpha=alpha_init, trainable=weight_initializer['trainable_convs'])
                 x = tf.reshape(x, shape=[-1, 3 * weight_initializer['conv_depths'][2]], name="reshaped")
+            elif weight_initializer['pretrained_dense_encoder']:
+                w_idx = None
+                for n, w in enumerate(weights):
+                    if w['layer'] in ["encoder_layer"]:
+                        w_init = tf.initializers.constant(w['weights']['kernel'])
+                        b_init = tf.initializers.constant(w['weights']['bias']) if 'bias' in w['weights'] else tf.initializers.zeros()
+                        print("Found layer in file! {} : {}".format(w['layer'] , [w['weights'][x].shape for x in w['weights']] ) )
+                        w_idx = n
+                if w_idx is None:
+                    print("You said you wanted a dense encoder pretrained. No such weights were found. (Critical: exiting)")
+                    exit()
+                x = tf.nn.elu(x)
+                x = c_layers.flatten(x)
+                x = tf.layers.dense(x,
+                                    weight_initializer['pretrained_dense_encoder'],
+                                    activation=tf.nn.elu,
+                                    trainable=weight_initializer['trainable_convs'],
+                                    kernel_initializer=w_init,
+                                    bias_initializer=b_init,
+                                    )
 
             else:
                 x = c_layers.flatten(x)
-
-            for i in range(weight_initializer["n_dense"]):
+            n_dense = weight_initializer["n_dense"]
+            #if weight_initializer['pretrained_dense_encoder']:
+            #    n_dense -= 1
+            for i in range(n_dense):
                 x = tf.layers.dense(x, weight_initializer["hidden_size"], use_bias=False, activation=activation)
             hidden = x
             print("Verify the initialization. If correct press [enter]")
@@ -301,7 +338,8 @@ class LearningModel(object):
         self.probs = tf.expand_dims(tf.reduce_sum(self.all_probs * self.selected_actions, axis=1), 1)
         self.old_probs = tf.expand_dims(tf.reduce_sum(self.all_old_probs * self.selected_actions, axis=1), 1)
 
-    def create_cc_actor_critic(self, h_size, num_layers):
+    def create_cc_actor_critic(self, h_size, num_layers, use_data_gatherer=False):
+        self.use_data_gatherer = use_data_gatherer
         num_streams = 2
         hidden_streams = self.create_new_obs(num_streams, h_size, num_layers)
 

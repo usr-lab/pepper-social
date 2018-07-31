@@ -19,7 +19,7 @@ logger = logging.getLogger("unityagents")
 class PPOTrainer(Trainer):
     """The PPOTrainer is an implementation of the PPO algorythm."""
 
-    def __init__(self, sess, env, brain_name, trainer_parameters, training, seed):
+    def __init__(self, sess, env, brain_name, trainer_parameters, training, seed, use_data_gatherer):
         """
         Responsible for collecting experiences and training PPO model.
         :param sess: Tensorflow session.
@@ -66,7 +66,8 @@ class PPOTrainer(Trainer):
                                   normalize=trainer_parameters['normalize'],
                                   use_recurrent=trainer_parameters['use_recurrent'],
                                   num_layers=int(trainer_parameters['num_layers']),
-                                  m_size=self.m_size)
+                                  m_size=self.m_size,
+                                  use_data_gatherer=use_data_gatherer)
 
         stats = {'cumulative_reward': [], 'episode_length': [], 'value_estimate': [],
                  'entropy': [], 'value_loss': [], 'policy_loss': [], 'learning_rate': []}
