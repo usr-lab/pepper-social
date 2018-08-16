@@ -17,7 +17,7 @@ weight_initializer = {
                         "disable_visual_processing" : False, #This if true, makes the visual process thing return a constant zero-tensor. EVEN IF enabled IS SET TO FALSE!
                         "batch_normalization" : True,
                         "use_avg" : False,
-                        "spatial_AE" : False,
+                        "spatial_AE" : False,#True,
                         "pretrained_dense_encoder" : 512, #Set to None to deactivate!
                         "softargmax_layer" : spatial_soft_argmax,
                         "trainable_convs" : False,
@@ -28,8 +28,8 @@ weight_initializer = {
                         "conv_strides" : [(1,1), (1,1), (1,1)],
                         "conv_sizes" : [(7,7), (5,5), (5,5)],
                         "conv_padding" : "valid",
-                        "hidden_size" : 400,
-                        "n_dense" : 2,
+                        "hidden_size" : 2048,
+                        "n_dense" : 3,
                      }
 weight_initializer['init_dir'] = settings['dir_base'] + settings['project'] + "/init/"
 

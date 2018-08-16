@@ -111,7 +111,7 @@ public class MainAgentSocialForce : MonoBehaviour {
 		if(applyForce)
 		{
 			Debug.Log(finalForce.magnitude);
-			rBody.AddForce(finalForce.normalized * 0.7f, ForceMode.Force);
+			rBody.AddForce(finalForce.normalized * 0.4f, ForceMode.Force);
 		}
 
 

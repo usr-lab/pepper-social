@@ -27,6 +27,7 @@ public class SocialForce : MonoBehaviour {
 	private Vector3 repulsiveForce = Vector3.zero;
 
 	[HideInInspector]
+	[System.NonSerialized]
     public Rigidbody rBody;
 
 	// Use this for initialization

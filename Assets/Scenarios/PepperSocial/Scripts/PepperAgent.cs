@@ -28,7 +28,7 @@ public class PepperAgent : Agent
 
 	private MainAgentSocialForce maSocialForce;
 	
-	private bool demoMode = true;
+	private bool demoMode = false;
 	private int demoTrack = 0;
 	private float allowedArea;
 	private List<Vector3> lPositions = new List<Vector3>();
@@ -171,16 +171,19 @@ public class PepperAgent : Agent
 
 	}
 
-	void CalculateReward()
+	void CalculateReward(float[] vectorAction)
 	{
 	 	// Setting weights for rewards
 	 	//float fastEpisodeWeight = 0.00001f;
 	 	float potentialLossWeight = 0.012f;
-	 	float noneIncreasingWeight = 2.4f; // Tendency of not increasing potential loss
+	 	float noneIncreasingWeight = 3.6f; // Tendency of not increasing potential loss
 	 	float tiresomeWeight = 0.16f;
 
 	 	// egocentrism and altruism weights
-	 	float egoismWeight = 0.0045f;
+		// EMERGENCE CHANGE
+	 	float egoismWeight = 0.0035f;
+		//float egoismWeight = 0.0045f;
+		
 	 	float altruismWeight = 1f - egoismWeight;
 
 	 	// Initializing the rewards from two sides
@@ -208,10 +211,12 @@ public class PepperAgent : Agent
 			altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
 
 		}
-		egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
+		// EMERGENCE CHANG
+		// egoismReward += -(Mathf.Pow(vectorAction[0],2) + Mathf.Pow(vectorAction[1],2)) * tiresomeWeight;
+		egoismReward += -Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight;
 
 		// Step cost
-		egoismReward += -1.0f; //3)
+		egoismReward += -2.0f; //3)
 	   
 		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 		
@@ -226,19 +231,6 @@ public class PepperAgent : Agent
 
 	public void SavePositions()
 	{
-		using (StreamWriter w = File.AppendText("agent.txt"))
-        {
-			string agentPosition = JsonUtility.ToJson(transform.position);
-            Log(agentPosition, w);
-        }
-		for(int i = 0; i < gpManager.numberOfAgent; i++)
-		{
-			using (StreamWriter w = File.AppendText("human_"+i.ToString()+".txt"))
-			{
-				string humanPosition = JsonUtility.ToJson(gpManager.agents[i].transform.position);
-				Log(humanPosition, w);
-			}
-		}
 		
 		
 	}
@@ -246,7 +238,7 @@ public class PepperAgent : Agent
     {
 		SavePositions();
 
-		CalculateReward();
+		CalculateReward(vectorAction);
         // Set orientation
         Vector3 deltaPosition = Target.position - transform.position;
         if (deltaPosition != Vector3.zero)
@@ -276,7 +268,7 @@ public class PepperAgent : Agent
     {
         Vector3 mForward = Vector3.zero;
         Vector3 mSideway = Vector3.zero;
-		moveSpeed= 0.1f;
+		moveSpeed= 0.05f;
 
         if (brain.brainParameters.vectorActionSpaceType == SpaceType.continuous)
         {

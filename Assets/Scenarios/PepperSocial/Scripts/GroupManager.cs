@@ -111,8 +111,8 @@ public class GroupManager : MonoBehaviour {
             Vector3 point = new Vector3(x, 0f, z) * oSpace + this.transform.position;
             point.y = this.transform.position.y;
             agents[i].transform.position = point;
-			agentsSocialForces[i].rBody.angularVelocity = Vector3.zero;
-			agentsSocialForces[i].rBody.velocity = Vector3.zero;
+			agentsSocialForces[i].gameObject.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+			agentsSocialForces[i].gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
             agents[i].transform.forward = new Vector3(Mathf.Cos(directionFacing * Mathf.PI / 180.0f), 0.0f, Mathf.Sin(directionFacing * Mathf.PI / 180.0f));
         }
     }

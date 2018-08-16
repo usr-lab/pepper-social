@@ -175,14 +175,16 @@ PepperBrain:
     gamma: 0.99
     normalize: true
     beta: 1.0e-3
-    
+
 PepperVisualBrain:
-    max_steps: 30e5
+    max_steps: 40e5
     batch_size: 256
-    learning_rate: 1e-6
+    learning_rate: 1e-7
     use_recurrent: true
     hidden_units: 512
     num_layers: 3
     gamma: 0.99
     normalize: true
     beta: 1.0e-3
+    epsilon: 0.1
+
