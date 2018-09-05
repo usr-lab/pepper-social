@@ -27,13 +27,13 @@ public class PepperAgent : Agent
     private GroupManager gpManager;
 
 	private MainAgentSocialForce maSocialForce;
-	
-	private bool demoMode = true;
+
+	private bool demoMode = false;
 	private int demoTrack = 0;
 	private float allowedArea;
 	private List<Vector3> lPositions = new List<Vector3>();
 	private List<Vector3> groupPositions = new List<Vector3>();
-				  
+
     void MoveCamera()
     {
       // Vector3 offset = new Vector3(0.0f,1.0f,0.0f);
@@ -42,9 +42,13 @@ public class PepperAgent : Agent
         this.cam.transform.forward = Quaternion.AngleAxis(0, rBody.transform.right) * rBody.transform.forward;
     }
 
+    void Awake()
+    {
+      rBody = GetComponent<Rigidbody>();
+    }
+
     void Start()
     {
-        rBody = GetComponent<Rigidbody>();
         gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
         if (!gpManager)
         {
@@ -52,7 +56,7 @@ public class PepperAgent : Agent
         }
 
 		maSocialForce = this.GetComponent<MainAgentSocialForce>();
-		maxStepsPerEpoch = 1000;
+		maxStepsPerEpoch = 300;
 
 
 
@@ -65,7 +69,7 @@ public class PepperAgent : Agent
 		lPositions.Add(new Vector3(0.5f*allowedArea - allowedArea / 2,
 								   0.16f,
 								   0.2f*allowedArea - allowedArea / 2));
-		
+
 
 		lPositions.Add(new Vector3(0.8f*allowedArea - allowedArea / 2,
 								   0.16f,
@@ -78,7 +82,7 @@ public class PepperAgent : Agent
 		lPositions.Add(new Vector3(0.8f*allowedArea - allowedArea / 2,
 								   0.16f,
 								   0.55f*allowedArea - allowedArea / 2));
-		
+
 		lPositions.Add(new Vector3(0.2f*allowedArea - allowedArea / 2,
 								   0.16f,
 								   0.8f*allowedArea - allowedArea / 2));
@@ -90,7 +94,7 @@ public class PepperAgent : Agent
 		lPositions.Add(new Vector3(0.8f*allowedArea - allowedArea / 2,
 								   0.16f,
 								   0.8f*allowedArea - allowedArea / 2));
-		
+
 		groupPositions.Add(new Vector3(0.5f*allowedArea - allowedArea / 2,
 									   0.16f,
 									   0.5f*allowedArea - allowedArea / 2));
@@ -103,7 +107,7 @@ public class PepperAgent : Agent
 		if(!demoMode)
 		{
 			float allowedArea = ArenaDimensions * 0.9f;
-			
+
 			this.transform.position = new Vector3((Random.value * allowedArea) - (allowedArea / 2),
 												  0.16f,
 												  (Random.value * allowedArea) - (allowedArea / 2));
@@ -111,7 +115,7 @@ public class PepperAgent : Agent
 			Target.transform.position = new Vector3((Random.value * targetAllowedArea) - (targetAllowedArea / 2),
 													0.16f,
 													(Random.value * targetAllowedArea) - (targetAllowedArea / 2));
-			
+
 			this.rBody.angularVelocity = Vector3.zero;
 			this.rBody.velocity = Vector3.zero;
 			float angle = Random.Range (0f, Mathf.PI * 2);
@@ -194,7 +198,7 @@ public class PepperAgent : Agent
 		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
 		egoismReward += potentialLoss * potentialLossWeight; 		// 1)
 
-		
+
 		if (potentialLoss > 0f)
         {
 			egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
@@ -212,9 +216,9 @@ public class PepperAgent : Agent
 
 		// Step cost
 		egoismReward += -1.0f; //3)
-	   
+
 		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
-		
+
 		// Calculate the final reward
         if (distanceToTarget < gpManager.oSpace)
         {
@@ -226,21 +230,19 @@ public class PepperAgent : Agent
 
 	public void SavePositions()
 	{
-		using (StreamWriter w = File.AppendText("agent.txt"))
-        {
-			string agentPosition = JsonUtility.ToJson(transform.position);
-            Log(agentPosition, w);
-        }
-		for(int i = 0; i < gpManager.numberOfAgent; i++)
-		{
-			using (StreamWriter w = File.AppendText("human_"+i.ToString()+".txt"))
-			{
-				string humanPosition = JsonUtility.ToJson(gpManager.agents[i].transform.position);
-				Log(humanPosition, w);
-			}
-		}
-		
-		
+		// using (StreamWriter w = File.AppendText("agent.txt"))
+    //     {
+		// 	string agentPosition = JsonUtility.ToJson(transform.position);
+    //         Log(agentPosition, w);
+    //     }
+		// for(int i = 0; i < gpManager.numberOfAgent; i++)
+		// {
+		// 	using (StreamWriter w = File.AppendText("human_"+i.ToString()+".txt"))
+		// 	{
+		// 		string humanPosition = JsonUtility.ToJson(gpManager.agents[i].transform.position);
+		// 		Log(humanPosition, w);
+		// 	}
+		// }
 	}
     public override void AgentAction(float[] vectorAction, string textAction)
     {
@@ -285,10 +287,10 @@ public class PepperAgent : Agent
         }
         else
         {
-			
+
         }
         rBody.AddForce((mForward+mSideway) * moveSpeed, ForceMode.VelocityChange);
-		
+
         //transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
 
         if (rBody.velocity.sqrMagnitude > 25f) // slow it down

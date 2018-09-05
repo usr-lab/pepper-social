@@ -27,27 +27,30 @@ public class MainAgentSocialForce : MonoBehaviour {
 
     private Rigidbody rBody;
 	private bool applyForce = false;
-	
-    // Use this for initialization
-    void Start () {
-        gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
-        if (!gpManager)
-        {
-            Debug.LogError("GroupManager was not attached");
-        }
 
-        lineDrawPrefab = Resources.Load("Prefab/lineDrawPrefab") as GameObject;
-        lineDrawPrefabPersonal = GameObject.Instantiate(lineDrawPrefab) as GameObject;
-        lineDrawPrefabSocial = GameObject.Instantiate(lineDrawPrefab) as GameObject;
-        lineDrawPrefabPublic = GameObject.Instantiate(lineDrawPrefab) as GameObject;
-		rBody = this.gameObject.GetComponent<Rigidbody>();
-        if (!rBody)
-        {
-            Debug.LogError("RigidBody was not attached");
-        }
-
+  void Awake()
+  {
+    rBody = this.gameObject.GetComponent<Rigidbody>();
+    if (!rBody)
+    {
+        Debug.LogError("RigidBody was not attached");
     }
-	
+  }
+
+  // Use this for initialization
+  void Start () {
+      gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
+      if (!gpManager)
+      {
+          Debug.LogError("GroupManager was not attached");
+      }
+
+      lineDrawPrefab = Resources.Load("Prefab/lineDrawPrefab") as GameObject;
+      lineDrawPrefabPersonal = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+      lineDrawPrefabSocial = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+      lineDrawPrefabPublic = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+  }
+
 	// Update is called once per frame
 	void Update () {
         UpdateNeighbors();
@@ -140,8 +143,8 @@ public class MainAgentSocialForce : MonoBehaviour {
 
     void GetEqualityForce(List<Vector3> listR, Vector3 r, out Vector3 force, out Vector3 orientation)
     {
-        //Vector3 c = 1 / (float)(listR.Count() + 1) * (r + new Vector3(listR.Select(x=>x.x).Sum(), 
-        //                                                       listR.Select(x => x.y).Sum(), 
+        //Vector3 c = 1 / (float)(listR.Count() + 1) * (r + new Vector3(listR.Select(x=>x.x).Sum(),
+        //                                                       listR.Select(x => x.y).Sum(),
         //                                                       listR.Select(x => x.z).Sum()));
         Vector3 sum = Vector3.zero;
         foreach (var ri in listR)
@@ -159,7 +162,7 @@ public class MainAgentSocialForce : MonoBehaviour {
             orientation += ri - r;
         }
         float m = (r - c).magnitude / (float)(listR.Count() + 1) * normSum;
-        force = (1.0f - m / (c - r).magnitude) * (c - r);        
+        force = (1.0f - m / (c - r).magnitude) * (c - r);
     }
 
     void GetCohesionForce(List<Vector3> listR, int oAgent, float oRadius, Vector3 converCenter, Vector3 r, out Vector3 force, out Vector3 orientation)
@@ -168,7 +171,7 @@ public class MainAgentSocialForce : MonoBehaviour {
         force = alpha * (1.0f - oRadius / (converCenter - r).magnitude) * (converCenter - r);
         orientation = Vector3.zero;
         foreach (var ri in listR)
-        {            
+        {
             orientation += ri - r;
         }
     }

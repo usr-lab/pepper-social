@@ -29,26 +29,28 @@ public class SocialForce : MonoBehaviour {
 	[HideInInspector]
     public Rigidbody rBody;
 
-	// Use this for initialization
-    void Start () {
-        gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
-        if (!gpManager)
-        {
-            Debug.LogError("GroupManager was not attached");
-        }
-
-        lineDrawPrefab = Resources.Load("Prefab/lineDrawPrefab") as GameObject;
-        lineDrawPrefabPersonal = GameObject.Instantiate(lineDrawPrefab) as GameObject;
-        lineDrawPrefabSocial = GameObject.Instantiate(lineDrawPrefab) as GameObject;
-        lineDrawPrefabPublic = GameObject.Instantiate(lineDrawPrefab) as GameObject;
-
+    void Awake()
+      {
         rBody = this.gameObject.GetComponent<Rigidbody>();
         if (!rBody)
         {
             Debug.LogError("RigidBody was not attached");
         }
-    }
-	
+      }
+  	// Use this for initialization
+      void Start () {
+          gpManager = GameObject.Find("GroupCenter").GetComponent<GroupManager>();
+          if (!gpManager)
+          {
+              Debug.LogError("GroupManager was not attached");
+          }
+
+          lineDrawPrefab = Resources.Load("Prefab/lineDrawPrefab") as GameObject;
+          lineDrawPrefabPersonal = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+          lineDrawPrefabSocial = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+          lineDrawPrefabPublic = GameObject.Instantiate(lineDrawPrefab) as GameObject;
+      }
+
 	// if using add force, it should be in FixedUpdate
 	void FixedUpdate () {
         UpdateNeighbors();
@@ -61,7 +63,7 @@ public class SocialForce : MonoBehaviour {
 	public Vector3 GetRepulsiveForce() {
 		return this.repulsiveForce;
 	}
-	
+
 	public Rigidbody GetrBody() {
 		return this.gameObject.GetComponent<Rigidbody>();
 	}
@@ -135,7 +137,7 @@ public class SocialForce : MonoBehaviour {
         Vector3 finalOrientation = equalityOrientation + cohesionOrientation;
         if (finalOrientation != Vector3.zero)
         {
-            this.transform.forward = new Vector3(finalOrientation.x, 0.0f, finalOrientation.z);                
+            this.transform.forward = new Vector3(finalOrientation.x, 0.0f, finalOrientation.z);
         }
 
         DrawArrow.ForDebug(transform.position+new Vector3(0.0f,0.9f,0.0f), cohesionForce.normalized, Color.black);
@@ -161,8 +163,8 @@ public class SocialForce : MonoBehaviour {
 
     void GetEqualityForce(List<Vector3> listR, Vector3 r, out Vector3 force, out Vector3 orientation)
     {
-        //Vector3 c = 1 / (float)(listR.Count() + 1) * (r + new Vector3(listR.Select(x=>x.x).Sum(), 
-        //                                                       listR.Select(x => x.y).Sum(), 
+        //Vector3 c = 1 / (float)(listR.Count() + 1) * (r + new Vector3(listR.Select(x=>x.x).Sum(),
+        //                                                       listR.Select(x => x.y).Sum(),
         //                                                       listR.Select(x => x.z).Sum()));
         Vector3 sum = Vector3.zero;
         foreach (var ri in listR)
@@ -180,16 +182,16 @@ public class SocialForce : MonoBehaviour {
             orientation += ri - r;
         }
         float m = (r - c).magnitude / (float)(listR.Count() + 1) * normSum;
-        force = (1.0f - m / (c - r).magnitude) * (c - r);        
+        force = (1.0f - m / (c - r).magnitude) * (c - r);
     }
 
     void GetCohesionForce(List<Vector3> listR, int oAgent, float oRadius, Vector3 converCenter, Vector3 r, out Vector3 force, out Vector3 orientation)
     {
-        float alpha = (float)listR.Count() / (float)(oAgent + 1);        
+        float alpha = (float)listR.Count() / (float)(oAgent + 1);
         force = alpha * (1.0f - oRadius / (converCenter - r).magnitude) * (converCenter - r);
         orientation = Vector3.zero;
         foreach (var ri in listR)
-        {            
+        {
             orientation += ri - r;
         }
     }
