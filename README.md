@@ -18,3 +18,6 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 ## Follow Me
 * Twitter: [@alexyuangao](http://twitter.com/alexyuangao)
 * Blog: [github.io](gaoyuankidult.github.io)
+
+## Code states
+BASELINE-v0 https://github.com/gaoyuankidult/PepperSocial/tree/6a506f3b43f48b881d5d8828e0f781e115a8b155
