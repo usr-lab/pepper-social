@@ -28,8 +28,8 @@ weight_initializer = {
                         "conv_strides" : [(1,1), (1,1), (1,1)],
                         "conv_sizes" : [(7,7), (5,5), (5,5)],
                         "conv_padding" : "valid",
-                        "hidden_size" : 400,
-                        "n_dense" : 2,
+                        "hidden_size" : 2048,
+                        "n_dense" : 3,
                      }
 weight_initializer['init_dir'] = settings['dir_base'] + settings['project'] + "/init/"
 

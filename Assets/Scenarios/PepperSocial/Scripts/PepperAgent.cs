@@ -136,11 +136,15 @@ public class PepperAgent : Agent
 
     public override void CollectObservations()
     {
+        // float forwardSpeed = Vector3.Dot(rBody.velocity, transform.forward.normalized );
+        // float sidewaySpeed = Vector3.Dot(rBody.velocity, transform.right.normalized );
+        // AddVectorObs( forwardSpeed );
+        // AddVectorObs( sidewaySpeed );
 
         float arenaEdgefromCenter = ArenaDimensions / 2;
         // Calculate relative position
         Vector3 relativePosition = Target.position - this.transform.position;
-		///*
+
         // Relative position
         AddVectorObs(relativePosition.x / arenaEdgefromCenter);
         AddVectorObs(relativePosition.z / arenaEdgefromCenter);
@@ -158,7 +162,6 @@ public class PepperAgent : Agent
 		// Diatance to another two agents
 		// Calculate the egocentric reward
 		for(int i = 0; i < gpManager.numberOfAgent; i++)
-
 //		foreach(GameObject agent in gpManager.agents)
 		{
 			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
@@ -170,7 +173,7 @@ public class PepperAgent : Agent
 //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
 //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
 
-		}//*/
+		}
 
 
 	}
@@ -180,11 +183,11 @@ public class PepperAgent : Agent
 	 	// Setting weights for rewards
 	 	//float fastEpisodeWeight = 0.00001f;
 	 	float potentialLossWeight = 0.012f;
-	 	float noneIncreasingWeight = 2.4f; // Tendency of not increasing potential loss
+	 	float noneIncreasingWeight = 3.6f; // Tendency of not increasing potential loss
 	 	float tiresomeWeight = 0.16f;
 
 	 	// egocentrism and altruism weights
-	 	float egoismWeight = 0.0045f;
+	 	float egoismWeight = 0.0035f;
 	 	float altruismWeight = 1f - egoismWeight;
 
 	 	// Initializing the rewards from two sides
@@ -200,33 +203,32 @@ public class PepperAgent : Agent
 
 
 		if (potentialLoss > 0f)
-        {
-			egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
-        }
+    {
+		    egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
+    }
 
 		// Calculate the altruism reward
 		for(int i = 0; i < gpManager.numberOfAgent; i++)
 		{
-			altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
+		    altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
 										   gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
-			altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
-
+		    altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
 		}
 		egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
 
 		// Step cost
-		egoismReward += -1.0f; //3)
+		egoismReward += -2.0f; //3)
 
 		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 
 		// Calculate the final reward
-        if (distanceToTarget < gpManager.oSpace)
-        {
-			this.steps = 0;
-			AddReward(1f); // fast complesion tendensy
-			Done();
-        }
-	}
+    if (distanceToTarget < gpManager.oSpace)
+    {
+		    this.steps = 0;
+		    AddReward(1f); // fast complesion tendensy
+		    Done();
+    }
+  }
 
 	public void SavePositions()
 	{
@@ -278,7 +280,7 @@ public class PepperAgent : Agent
     {
         Vector3 mForward = Vector3.zero;
         Vector3 mSideway = Vector3.zero;
-		moveSpeed= 0.1f;
+		    moveSpeed= 0.05f;
 
         if (brain.brainParameters.vectorActionSpaceType == SpaceType.continuous)
         {
