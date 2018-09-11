@@ -184,8 +184,8 @@ public class PepperAgent : Agent
 	{
 	 	// Setting weights for rewards
 	 	//float fastEpisodeWeight = 0.00001f;
-	 	float potentialLossWeight = 0.012f;
-	 	float noneIncreasingWeight = 3.6f; // Tendency of not increasing potential loss
+	 	float potentialLossWeight = 2.6f;
+	 	float noneIncreasingWeight = -1.68f; // Tendency of not increasing potential loss
 	 	float tiresomeWeight = 0.16f;
 
 	 	// egocentrism and altruism weights
