@@ -180,55 +180,55 @@ public class PepperAgent : Agent
 
 	}
 
-	void CalculateReward()
-	{
-	 	// Setting weights for rewards
-	 	//float fastEpisodeWeight = 0.00001f;
-	 	float potentialLossWeight = 0.012f;
-	 	float noneIncreasingWeight = 3.6f; // Tendency of not increasing potential loss
-	 	float tiresomeWeight = 0.16f;
+  void CalculateReward()
+  {
+    // Setting weights for rewards
+    //float fastEpisodeWeight = 0.00001f;
+    float potentialLossWeight = 0.012f;
+    float noneIncreasingWeight = 2.4f; // Tendency of not increasing potential loss
+    float tiresomeWeight = 0.16f;
 
-	 	// egocentrism and altruism weights
-	 	float egoismWeight = 0.0035f;
-	 	float altruismWeight = 1f - egoismWeight;
+    // egocentrism and altruism weights
+    float egoismWeight = 0.0040f;
+    float altruismWeight = 1f - egoismWeight;
 
-	 	// Initializing the rewards from two sides
-	 	float egoismReward = 0f;
-	 	float altruismReward = 0f;
+    // Initializing the rewards from two sides
+    float egoismReward = 0f;
+    float altruismReward = 0f;
 
-	    // Checking the ending crfdfd
-	 	float distanceToTarget = Vector3.Distance(this.transform.position,
-												  Target.position);
-		// Calculate the egoism reward
-		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
-		egoismReward += potentialLoss * potentialLossWeight; 		// 1)
+      // Checking the ending crfdfd
+    float distanceToTarget = Vector3.Distance(this.transform.position,
+                          Target.position);
+    // Calculate the egoism reward
+    float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
+    egoismReward += potentialLoss * potentialLossWeight; 		// 1)
 
 
-		if (potentialLoss > 0f)
+    if (potentialLoss > 0f)
     {
-		    egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
+        egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
     }
 
-		// Calculate the altruism reward
-		for(int i = 0; i < gpManager.numberOfAgent; i++)
-		{
-		    altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
-										   gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
-		    altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
-		}
-		egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
+    // Calculate the altruism reward
+    for(int i = 0; i < gpManager.numberOfAgent; i++)
+    {
+        altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
+                       gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
+        altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
+    }
+    egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
 
-		// Step cost
-		egoismReward += -2.0f; //3)
+    // Step cost
+    egoismReward += -2.0f; //3)
 
-		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
+    AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 
-		// Calculate the final reward
+    // Calculate the final reward
     if (distanceToTarget < gpManager.oSpace)
     {
-		    this.steps = 0;
-		    AddReward(1f); // fast complesion tendensy
-		    Done();
+        this.steps = 0;
+        AddReward(1f); // fast complesion tendensy
+        Done();
     }
   }
 
