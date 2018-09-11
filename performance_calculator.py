@@ -1,7 +1,7 @@
 '''
 This script was used to calculate/generate the performance table.
 
-To use it follow steps 1-3, then run the script.
+To use it follow steps 1-4.
 '''
 
 
@@ -12,17 +12,17 @@ To use it follow steps 1-3, then run the script.
 #
 '''
 results = {
-            'Random'                        : 0.0,
-            'Vector + LSTM'                 : 5.0,
-            'Vector + FF'                   : 1.0,
-            'CameraOnly + our + FF'         : 2.0,
-            'CameraOnly + our + LSTM'       : 3.0,
-            'CameraOnly + conv + FF'        : 4.0,
-            'CameraOnly + conv + LSTM'      : 5.0,
-            'CameraSpeed + our + FF'        : 6.0,
+            'Random'                        : -1.175555412,
+            'Vector + LSTM'                 : 0.8806,
+            'Vector + FF'                   : -1.0,
+            'CameraOnly + our + FF'         : -1.0,
+            'CameraOnly + our + LSTM'       : -0.01368,
+            'CameraOnly + conv + FF'        : -1.0,
+            'CameraOnly + conv + LSTM'      : 0.1332,
+            'CameraSpeed + our + FF'        : -1.0,
             'CameraSpeed + our + LSTM'      : -1.0,
-            'CameraSpeed + conv + FF'       : 1.5,
-            'CameraSpeed + conv + LSTM'     : 0.0,
+            'CameraSpeed + conv + FF'       : -1.0,
+            'CameraSpeed + conv + LSTM'     : -1.0,
            }
 
 '''
@@ -30,7 +30,7 @@ results = {
 #   Step 2: tell if you want latex-format, and if you want something printed between the entries.
 #
 '''
-print_latex_table = True
+print_latex_table = False
 latex_line_separator = '' #use '\\hline' to have a line between all entries
 
 '''
@@ -42,6 +42,12 @@ lower = results['Random']
 upper = results['Vector + LSTM']
 
 
+'''
+#
+#   Step 4: Run the script!
+#
+'''
+
 
 #####
 ##### Just code below . . .
@@ -50,8 +56,8 @@ upper = results['Vector + LSTM']
 if not print_latex_table:
     for name in sorted(results):
         value = results[name]
-        relative = (value - lower) / (upper - lower)
-        print( "{:30}\t\t{:1.3f}\t{:3.1f}%".format(name,value, relative) )
+        relative = 100 * (value - lower) / (upper - lower)
+        print( "{:30}\t\t{}\t{}%".format(name,round(value,2),round(relative,2)) )
 else:
     best_val = sorted(results.items(), key=lambda x:x[1], reverse=True)[0][1]
     print(
@@ -64,10 +70,10 @@ else:
         )
     for name in sorted(results):
         value = results[name]
-        relative = (value - lower) / (upper - lower)
+        relative = 100 * (value - lower) / (upper - lower)
         if value == best_val:
-            print( "{:30} & \\textbf{{{:1.3f}}} & \\textbf{{{:3.1f}}}\\% \\\\ {}".format(name,value, relative, latex_line_separator) )
-        print( "{:30} & {:1.3f} & {:3.1f}\\% \\\\ {}".format(name,value, relative, latex_line_separator) )
+            print( "{:30} & \\textbf{{{}}} & \\textbf{{{}}}\\% \\\\ {}".format(name,round(value,2),round(relative,2), latex_line_separator) )
+        print( "{:30} & {} & {}\\% \\\\ {}".format(name,round(value,2),round(relative,2), latex_line_separator) )
     print(
         '''\\hline
 \\end{tabular}
