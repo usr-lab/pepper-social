@@ -142,93 +142,92 @@ public class PepperAgent : Agent
         // AddVectorObs( forwardSpeed );
         // AddVectorObs( sidewaySpeed );
 
-        // // OBSERVATION FOR BASELINE
-        float arenaEdgefromCenter = ArenaDimensions / 2;
-        // Calculate relative position
-        Vector3 relativePosition = Target.position - this.transform.position;
-
-        // Relative position
-        AddVectorObs(relativePosition.x / arenaEdgefromCenter);
-        AddVectorObs(relativePosition.z / arenaEdgefromCenter);
-
-        // Distance to edges of platform
-        AddVectorObs((this.transform.position.x + arenaEdgefromCenter) / arenaEdgefromCenter);
-        AddVectorObs((this.transform.position.x - arenaEdgefromCenter) / arenaEdgefromCenter);
-        AddVectorObs((this.transform.position.z + arenaEdgefromCenter) / arenaEdgefromCenter);
-        AddVectorObs((this.transform.position.z - arenaEdgefromCenter) / arenaEdgefromCenter);
-
-        // Agent velocity
-        AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
-        AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
-
-		// Diatance to another two agents
-		// Calculate the egocentric reward
-		for(int i = 0; i < gpManager.numberOfAgent; i++)
-//		foreach(GameObject agent in gpManager.agents)
-		{
-			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
-//			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;
-			AddVectorObs(relativePositionAgent.x / arenaEdgefromCenter);
-			AddVectorObs(relativePositionAgent.z / arenaEdgefromCenter);
-			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.x / arenaEdgefromCenter);
-			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.z / arenaEdgefromCenter);
-//			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
-//			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
-
-		}
-
+//         // // OBSERVATION FOR BASELINE
+//         float arenaEdgefromCenter = ArenaDimensions / 2;
+//         // Calculate relative position
+//         Vector3 relativePosition = Target.position - this.transform.position;
+//
+//         // Relative position
+//         AddVectorObs(relativePosition.x / arenaEdgefromCenter);
+//         AddVectorObs(relativePosition.z / arenaEdgefromCenter);
+//
+//         // Distance to edges of platform
+//         AddVectorObs((this.transform.position.x + arenaEdgefromCenter) / arenaEdgefromCenter);
+//         AddVectorObs((this.transform.position.x - arenaEdgefromCenter) / arenaEdgefromCenter);
+//         AddVectorObs((this.transform.position.z + arenaEdgefromCenter) / arenaEdgefromCenter);
+//         AddVectorObs((this.transform.position.z - arenaEdgefromCenter) / arenaEdgefromCenter);
+//
+//         // Agent velocity
+//         AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
+//         AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
+//
+// 		// Diatance to another two agents
+// 		// Calculate the egocentric reward
+// 		for(int i = 0; i < gpManager.numberOfAgent; i++)
+// //		foreach(GameObject agent in gpManager.agents)
+// 		{
+// 			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
+// //			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;
+// 			AddVectorObs(relativePositionAgent.x / arenaEdgefromCenter);
+// 			AddVectorObs(relativePositionAgent.z / arenaEdgefromCenter);
+// 			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.x / arenaEdgefromCenter);
+// 			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.z / arenaEdgefromCenter);
+// //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
+// //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
+//
+// 		}
+//
 
 	}
 
-	void CalculateReward()
-	{
-	 	// Setting weights for rewards
-	 	//float fastEpisodeWeight = 0.00001f;
-	 	float potentialLossWeight = 2.6f;
-	 	float noneIncreasingWeight = -1.68f; // Tendency of not increasing potential loss
-	 	float tiresomeWeight = 0.16f;
+  void CalculateReward()
+  {
+    // Setting weights for rewards
+    //float fastEpisodeWeight = 0.00001f;
+    float potentialLossWeight = 2.0f;
+    float noneIncreasingWeight = -1.0f; // Tendency of not increasing potential loss
+    float tiresomeWeight = 0.16f;
 
-	 	// egocentrism and altruism weights
-	 	float egoismWeight = 0.0035f;
-	 	float altruismWeight = 1f - egoismWeight;
+    // egocentrism and altruism weights
+    float egoismWeight = 0.04f;
+    float altruismWeight = 1f - egoismWeight;
 
-	 	// Initializing the rewards from two sides
-	 	float egoismReward = 0f;
-	 	float altruismReward = 0f;
+    // Initializing the rewards from two sides
+    float egoismReward = 0f;
+    float altruismReward = 0f;
 
-	    // Checking the ending crfdfd
-	 	float distanceToTarget = Vector3.Distance(this.transform.position,
-												  Target.position);
-		// Calculate the egoism reward
-		float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
-		egoismReward += potentialLoss * potentialLossWeight; 		// 1)
+      // Checking the ending crfdfd
+    float distanceToTarget = Vector3.Distance(this.transform.position,
+                          Target.position);
+    // Calculate the egoism reward
+    float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
+    egoismReward += potentialLoss * potentialLossWeight; 		// 1)
 
-
-		if (potentialLoss > 0f)
+    if (potentialLoss > 0f)
     {
-		    egoismReward += noneIncreasingWeight; // in-creasing potential penalty // 2)
+        egoismReward += potentialLoss * noneIncreasingWeight; // in-creasing potential penalty // 2)
     }
 
-		// Calculate the altruism reward
-		for(int i = 0; i < gpManager.numberOfAgent; i++)
-		{
-		    altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
-										   gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
-		    altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
-		}
-		egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
+    // Calculate the altruism reward
+    for(int i = 0; i < gpManager.numberOfAgent; i++)
+    {
+        altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
+                       gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
+        altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
+    }
+    egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
 
-		// Step cost
-		egoismReward += -2.0f; //3)
+    // Step cost
+    egoismReward += -2.0f; //3)
 
-		AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
+    AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 
-		// Calculate the final reward
+    // Calculate the final reward
     if (distanceToTarget < gpManager.oSpace)
     {
-		    this.steps = 0;
-		    AddReward(1f); // fast complesion tendensy
-		    Done();
+        this.steps = 0;
+        AddReward(1f); // fast complesion tendensy
+        Done();
     }
   }
 
