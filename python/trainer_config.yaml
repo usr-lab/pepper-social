@@ -167,15 +167,15 @@ StudentBrain:
 
 PepperBrain:
     max_steps: 30e5
-    batch_size: 2048
-    learning_rate: 1e-4
+    batch_size: 256
+    learning_rate: 1e-7
     use_recurrent: true
     hidden_units: 512
     num_layers: 3
     gamma: 0.99
     normalize: true
     beta: 1.0e-3
-    
+
 PepperVisualBrain:
     max_steps: 30e5
     batch_size: 256
