@@ -142,41 +142,41 @@ public class PepperAgent : Agent
         // AddVectorObs( forwardSpeed );
         // AddVectorObs( sidewaySpeed );
 
-//         // // OBSERVATION FOR BASELINE
-//         float arenaEdgefromCenter = ArenaDimensions / 2;
-//         // Calculate relative position
-//         Vector3 relativePosition = Target.position - this.transform.position;
-//
-//         // Relative position
-//         AddVectorObs(relativePosition.x / arenaEdgefromCenter);
-//         AddVectorObs(relativePosition.z / arenaEdgefromCenter);
-//
-//         // Distance to edges of platform
-//         AddVectorObs((this.transform.position.x + arenaEdgefromCenter) / arenaEdgefromCenter);
-//         AddVectorObs((this.transform.position.x - arenaEdgefromCenter) / arenaEdgefromCenter);
-//         AddVectorObs((this.transform.position.z + arenaEdgefromCenter) / arenaEdgefromCenter);
-//         AddVectorObs((this.transform.position.z - arenaEdgefromCenter) / arenaEdgefromCenter);
-//
-//         // Agent velocity
-//         AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
-//         AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
-//
-// 		// Diatance to another two agents
-// 		// Calculate the egocentric reward
-// 		for(int i = 0; i < gpManager.numberOfAgent; i++)
-// //		foreach(GameObject agent in gpManager.agents)
-// 		{
-// 			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
-// //			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;
-// 			AddVectorObs(relativePositionAgent.x / arenaEdgefromCenter);
-// 			AddVectorObs(relativePositionAgent.z / arenaEdgefromCenter);
-// 			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.x / arenaEdgefromCenter);
-// 			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.z / arenaEdgefromCenter);
-// //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
-// //			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
-//
-// 		}
-//
+        // // OBSERVATION FOR BASELINE
+        float arenaEdgefromCenter = ArenaDimensions / 2;
+        // Calculate relative position
+        Vector3 relativePosition = Target.position - this.transform.position;
+
+        // Relative position
+        AddVectorObs(relativePosition.x / arenaEdgefromCenter);
+        AddVectorObs(relativePosition.z / arenaEdgefromCenter);
+
+        // Distance to edges of platform
+        AddVectorObs((this.transform.position.x + arenaEdgefromCenter) / arenaEdgefromCenter);
+        AddVectorObs((this.transform.position.x - arenaEdgefromCenter) / arenaEdgefromCenter);
+        AddVectorObs((this.transform.position.z + arenaEdgefromCenter) / arenaEdgefromCenter);
+        AddVectorObs((this.transform.position.z - arenaEdgefromCenter) / arenaEdgefromCenter);
+
+        // Agent velocity
+        AddVectorObs(rBody.velocity.x / arenaEdgefromCenter);
+        AddVectorObs(rBody.velocity.z / arenaEdgefromCenter);
+
+		// Diatance to another two agents
+		// Calculate the egocentric reward
+		for(int i = 0; i < gpManager.numberOfAgent; i++)
+//		foreach(GameObject agent in gpManager.agents)
+		{
+			Vector3 relativePositionAgent = gpManager.agents[i].transform.position - this.transform.position;
+//			Vector3 relativePositionAgent = agent.transform.position - this.transform.position;
+			AddVectorObs(relativePositionAgent.x / arenaEdgefromCenter);
+			AddVectorObs(relativePositionAgent.z / arenaEdgefromCenter);
+			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.x / arenaEdgefromCenter);
+			AddVectorObs(gpManager.agentsSocialForces[i].GetrBody().velocity.z / arenaEdgefromCenter);
+//			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.x / arenaEdgefromCenter);
+//			AddVectorObs(agent.GetComponent<SocialForce>().GetrBody().velocity.z / arenaEdgefromCenter);
+
+		}
+
 
 	}
 
