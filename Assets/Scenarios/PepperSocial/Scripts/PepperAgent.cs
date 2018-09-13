@@ -184,12 +184,12 @@ public class PepperAgent : Agent
   {
     // Setting weights for rewards
     //float fastEpisodeWeight = 0.00001f;
-    float potentialLossWeight = 2.0f;
-    float noneIncreasingWeight = -1.0f; // Tendency of not increasing potential loss
+    float potentialLossWeight = 0.5f;
+    float noneIncreasingWeight = -0.25f; // Tendency of not increasing potential loss
     float tiresomeWeight = 0.16f;
 
     // egocentrism and altruism weights
-    float egoismWeight = 0.04f;
+    float egoismWeight = 0.14f;
     float altruismWeight = 1f - egoismWeight;
 
     // Initializing the rewards from two sides
@@ -218,7 +218,7 @@ public class PepperAgent : Agent
     egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
 
     // Step cost
-    egoismReward += -2.0f; //3)
+    egoismReward += -0.01f; //3)
 
     AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
 
