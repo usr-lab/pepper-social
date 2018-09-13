@@ -182,14 +182,16 @@ public class PepperAgent : Agent
 
   void CalculateReward()
   {
+    Debug.Log("----------");
+    float r1=0, r2=0, r3=0, r4=0, r5=0, r6=0;
     // Setting weights for rewards
     //float fastEpisodeWeight = 0.00001f;
-    float potentialLossWeight = 0.5f;
-    float noneIncreasingWeight = -0.25f; // Tendency of not increasing potential loss
+    float potentialLossWeight = 1.0f;
+    float noneIncreasingWeight = -0.75f; // Tendency of not increasing potential loss
     float tiresomeWeight = 0.16f;
 
     // egocentrism and altruism weights
-    float egoismWeight = 0.14f;
+    float egoismWeight = 0.09f;
     float altruismWeight = 1f - egoismWeight;
 
     // Initializing the rewards from two sides
@@ -202,10 +204,11 @@ public class PepperAgent : Agent
     // Calculate the egoism reward
     float potentialLoss = Vector3.Dot(rBody.velocity, this.maSocialForce.GetFinalForce());
     egoismReward += potentialLoss * potentialLossWeight; 		// 1)
-
+    r1 = potentialLoss * potentialLossWeight;
     if (potentialLoss > 0f)
     {
         egoismReward += potentialLoss * noneIncreasingWeight; // in-creasing potential penalty // 2)
+        r2 = potentialLoss * noneIncreasingWeight;
     }
 
     // Calculate the altruism reward
@@ -214,13 +217,20 @@ public class PepperAgent : Agent
         altruismReward += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
                        gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
         altruismReward += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
+
+        r3 += -Vector3.Dot(gpManager.agentsSocialForces[i].GetFinalForce(),
+                       gpManager.agentsSocialForces[i].GetComponent<SocialForce>().GetrBody().velocity) * potentialLossWeight;
+        r4 += -gpManager.agentsSocialForces[i].GetRepulsiveForce().magnitude/3.8f;
     }
     egoismReward += (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
+    r5 = (-Mathf.Pow(rBody.velocity.magnitude,2) * tiresomeWeight);
 
     // Step cost
     egoismReward += -0.01f; //3)
-
+    r6 = -0.01f;
     AddReward(egoismWeight * egoismReward + altruismWeight * altruismReward);
+
+    Debug.LogFormat("R1={0:0.0000}, R2={1:0.0000}, R3={2:0.0000}, R4={3:0.0000}, R5={4:0.0000}, R6={5:0.0000}, R(1+2)={6:0.0000}",egoismWeight*r1,egoismWeight*r2,altruismWeight*r3,altruismWeight*r4,egoismWeight*r5,egoismWeight*r6,egoismWeight*r1+egoismWeight*r2);
 
     // Calculate the final reward
     if (distanceToTarget < gpManager.oSpace)
