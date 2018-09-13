@@ -6,7 +6,7 @@ from initialization.spatial_softmax import *
 settings = {
             "store_as_int" : True,
             "dir_base" : "python/data/",
-            "project" : "AE_comp_4/",
+            "project" : "AE_comp_1/",
            }
 
 ''' -----------------------------------------------------------------------------'''
