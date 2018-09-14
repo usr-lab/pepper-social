@@ -17,8 +17,8 @@ weight_initializer = {
                         "disable_visual_processing" : False, #This if true, makes the visual process thing return a constant zero-tensor. EVEN IF enabled IS SET TO FALSE!
                         "batch_normalization" : True,
                         "use_avg" : False,
-                        "spatial_AE" : False,
-                        "pretrained_dense_encoder" : 512, #Set to None to deactivate!
+                        "spatial_AE" : True,
+                        "pretrained_dense_encoder" : None, #Set to None to deactivate!
                         "softargmax_layer" : spatial_soft_argmax,
                         "trainable_convs" : False,
                         "file" : "weights",

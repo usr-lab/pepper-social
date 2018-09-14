@@ -136,11 +136,11 @@ public class PepperAgent : Agent
 
     public override void CollectObservations()
     {
-        // // OBSERVARIONS FOR CameraSpeed
-        // float forwardSpeed = Vector3.Dot(rBody.velocity, transform.forward.normalized );
-        // float sidewaySpeed = Vector3.Dot(rBody.velocity, transform.right.normalized );
-        // AddVectorObs( forwardSpeed );
-        // AddVectorObs( sidewaySpeed );
+        // OBSERVARIONS FOR CameraSpeed
+        float forwardSpeed = Vector3.Dot(rBody.velocity, transform.forward.normalized );
+        float sidewaySpeed = Vector3.Dot(rBody.velocity, transform.right.normalized );
+        AddVectorObs( forwardSpeed );
+        AddVectorObs( sidewaySpeed );
 
 //         // // OBSERVATION FOR BASELINE
 //         float arenaEdgefromCenter = ArenaDimensions / 2;
