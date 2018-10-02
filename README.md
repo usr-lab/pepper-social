@@ -6,7 +6,9 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 
 ## Environments
 **Pepper robot approaches people:** The pepper robot needs to approach people from a right angle: 
+[@alexyuangao](http://twitter.com/alexyuangao)
 
+![](Screenshots/force-actions.gif)
 
 ## Project Setup
 * The [TensorflowSharp](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Background-TensorFlow.md#tensorflowsharp) plugins folder was omitted from this project due to the massive file sizes. You will need to import this set of Unity plugins yourself. You can download the TensorFlowSharp plugin as a [Unity package here](https://s3.amazonaws.com/unity-ml-agents/0.3/TFSharpPlugin.unitypackage).
