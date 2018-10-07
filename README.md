@@ -16,11 +16,11 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 <img src="Screenshots/force-actions.gif" width="200"/>
 
 #### Learned Behaviour
-Approaching from the left side:
+Approaching from the left side by taking care of personal, social and public space:
 
 <img src="Screenshots/A1.gif" width="200"/> 
 
-Approaching from the right side:
+Approaching from the right side by taking care of personal, social and public space:
 
 <img src="Screenshots/A2.gif" width="200"/>
 
