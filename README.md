@@ -8,8 +8,8 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 **Pepper robot approaches people:** The pepper robot needs to approach people from a right angle: 
 [@alexyuangao](http://twitter.com/alexyuangao)
 
-#### Basic Behaviour
-<img src="Screenshots/force-actions.gif" width="200" height="400" />
+#### Base Behaviour
+<img src="Screenshots/force-actions.gif" width="200" height="200" />
 
 #### Learned Behaviour
 
