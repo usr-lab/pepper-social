@@ -9,7 +9,7 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 [@alexyuangao](http://twitter.com/alexyuangao)
 
 #### Base Behaviour
-<img src="Screenshots/force-actions.gif" width="200" height="200" />
+<img src="Screenshots/force-actions.gif" width="200"/>
 
 #### Learned Behaviour
 
