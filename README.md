@@ -10,7 +10,7 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 #### Visualization of personal, social and public spaces of different agents and a sample of image-based observation
 <img src="Screenshots/topdown.gif" style="display:inline" height="250"/> <img src="Screenshots/firstperson.gif" style="display:inline" height="250"/>
 
-#### Base Behaviour
+#### Base Behaviour(Without considering social norms)
 <img src="Screenshots/force-actions.gif" width="300"/>
 
 #### Learned Behaviour
