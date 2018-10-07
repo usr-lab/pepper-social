@@ -65,7 +65,7 @@ Inside of the `ml-agents/python/` directory, run the command:
 ### Yuan Gao
 
 * Twitter: [@alexyuangao](http://twitter.com/alexyuangao)
-* Blog: [yuangao.ai](yuangao.ai)
+* Blog: [yuangao.ai](http://yuangao.ai)
 
 ### Martin Frisk
 
