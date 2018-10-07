@@ -8,7 +8,11 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 **Pepper robot approaches people:** The pepper robot needs to approach people from a right angle: 
 [@alexyuangao](http://twitter.com/alexyuangao)
 
-![](Screenshots/force-actions.gif)
+#### Basic Behaviour
+<img src="Screenshots/force-actions.gif" width="200" height="400" />
+
+#### Learned Behaviour
+
 
 ## Project Prerequisite
 * The [TensorflowSharp](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Background-TensorFlow.md#tensorflowsharp) plugins folder was omitted from this project due to the massive file sizes. You will need to import this set of Unity plugins yourself. You can download the TensorFlowSharp plugin as a [Unity package here](https://s3.amazonaws.com/unity-ml-agents/0.3/TFSharpPlugin.unitypackage).
@@ -40,7 +44,7 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 + Make sure that the relevant `Brain`s are set to external in the inspector.
 
 #### Open PepperSocial scene File
-1. Use `Unity Editor` to open the project folder. Then use `Ctrl+o` to open scene file by folloing the path `PepperSocial/Assets/Scenarios/PepperSocial/PepperSocial.unity`.
+1. Use `Unity Editor` to open the project folder. Then use `Ctrl+o` to open scene file by following the path `PepperSocial/Assets/Scenarios/PepperSocial/PepperSocial.unity`.
 
 #### Create a build inside of Unity Headleslly for Linux
 1. Go to File -> Build Settings.
