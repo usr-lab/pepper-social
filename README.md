@@ -8,21 +8,16 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 **Pepper robot approaches people:** The pepper robot needs to approach people from a right angle: 
 [@alexyuangao](http://twitter.com/alexyuangao)
 
-#### User Observations
-
-#### Agent Observations
+#### Screenshot with different spaces of different agent and a sample of image-based observation
+<img src="Screenshots/topdown.gif" style="display:inline" height="200"/> <img src="Screenshots/firstperson.gif" style="display:inline" height="200"/>
 
 #### Base Behaviour
 <img src="Screenshots/force-actions.gif" width="200"/>
 
 #### Learned Behaviour
-Approaching from the left side by taking care of personal, social and public space:
+Approaching from the left and right side by taking care of personal, social and public space. Learned policy can enable robot to approach from any point in the space:
 
-<img src="Screenshots/A1.gif" width="200"/> 
-
-Approaching from the right side by taking care of personal, social and public space:
-
-<img src="Screenshots/A2.gif" width="200"/>
+<img src="Screenshots/A1.gif" style="display:inline" width="200"/>  <img src="Screenshots/A2.gif" width="200"/>
 
 
 ## Project Prerequisite
