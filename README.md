@@ -31,7 +31,6 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 
 #### Known Problems of this section.
 - If you lack grpc dependences after installing using `requirements.txt`, please install the dependence using `pip install grpcio`.
-- Some linux distributions have problems installing `pipenv`. **If you have a fresh [conda](https://anaconda.org/) environment, you can continue from the step three of this section.**
 
 ### Building pepper social environment
 
