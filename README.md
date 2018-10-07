@@ -17,16 +17,10 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 
 * We recommend using a python virtual environment to manage Python dependencies. For this we recommend using [Anaconda](https://www.anaconda.com/), a powerful virtual environment and package management tool. 
 
-## Getting Started
-
-In order to run experiemnts using Unity, The following dependencies are necessary.
-
-#### Unity
-
-Of course, the Unity game engine is required.  
+* The Unity game engine is required.  
 [Linux installation download link](https://forum.unity.com/threads/unity-on-linux-release-notes-and-known-issues.350256/page-2)  
-This code has been tested on the following Unity verisions:  
-+ Unity 2018.2.0b7.
+
+## Getting Started
 
 ### Creating a virtual Python environment using Anaconda
 
