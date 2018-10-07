@@ -8,7 +8,7 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 **Pepper robot approaches people:** The pepper robot needs to approach people from a right angle: 
 [@alexyuangao](http://twitter.com/alexyuangao)
 
-#### Screenshot with different spaces of different agent and a sample of image-based observation
+#### Visualization of personal, social and public spaces of different agent and a sample of image-based observation
 <img src="Screenshots/topdown.gif" style="display:inline" height="200"/> <img src="Screenshots/firstperson.gif" style="display:inline" height="200"/>
 
 #### Base Behaviour
