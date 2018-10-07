@@ -19,7 +19,7 @@ The pepper social scenarios is implemented using ml-agents. It is still under de
 
 * The Unity game engine is required. [Linux installation download link](https://forum.unity.com/threads/unity-on-linux-release-notes-and-known-issues.350256/page-2)
 
-* (optional) Preprocessing module of the images can be found [here](https://github.com/mightypirate1/AutoEnc_House).
+* (Optional) Vision module can be found [here](https://github.com/mightypirate1/AutoEnc_House).
 
 ## Getting Started
 
