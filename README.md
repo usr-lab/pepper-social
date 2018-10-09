@@ -83,7 +83,7 @@ Inside of the `ml-agents/python/` directory, run the command:
 ## Branches Related to Implementation
 
 We use branches to keep the experiments clean:
-The following tables shows configerations and their corresponding branch.
+The following table shows configerations and their corresponding branches.
 
 | Configeratures            | Branch                                                                                  |
 |---------------------------|-----------------------------------------------------------------------------------------|
