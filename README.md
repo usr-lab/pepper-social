@@ -80,5 +80,16 @@ Inside of the `ml-agents/python/` directory, run the command:
 
 * Twitter: 
 
-## Code states
-BASELINE-v0 https://github.com/gaoyuankidult/PepperSocial/tree/6a506f3b43f48b881d5d8828e0f781e115a8b155
+## Branches Related to Implementation
+
+We use branches to keep the experiments clean:
+The following tables shows configerations and their corresponding branch.
+
+| Configeratures            | Branch                                                                                  |
+|---------------------------|-----------------------------------------------------------------------------------------|
+| Vector + LSTM (Baseline)  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/BASELINE-v0.2a)             |
+| CameraOnly + SAEV + FF    | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-OurAE-v0.2a-ff)  |
+| CameraOnly + SAEV + LSTM  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-OurAE-v0.2a)     |
+| CameraOnly + conv + FF    | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-ConvAE-v0.2a-ff) |
+| CameraOnly + conv + LSTM  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-ConvAE-v0.2a)   |
+| CameraSpeed + SAEV + LSTM | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-OurAE-v0.2a)    |
