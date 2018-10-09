@@ -92,4 +92,5 @@ The following table shows configerations and their corresponding branches.
 | CameraOnly + SAEV + LSTM  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-OurAE-v0.2a)     |
 | CameraOnly + conv + FF    | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-ConvAE-v0.2a-ff) |
 | CameraOnly + conv + LSTM  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-ConvAE-v0.2a)   |
+| CameraSpeed + SAEV + FF | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-OurAE-v0.2a-ff)    |
 | CameraSpeed + SAEV + LSTM | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-OurAE-v0.2a)    |
