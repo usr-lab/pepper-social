@@ -87,10 +87,10 @@ The following table shows configerations and their corresponding branches.
 
 | Configeratures            | Branch                                                                                  |
 |---------------------------|-----------------------------------------------------------------------------------------|
-| Vector + LSTM (Baseline)  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/BASELINE-v0.2a)             |
-| CameraOnly + SAEV + FF    | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-OurAE-v0.2a-ff)  |
-| CameraOnly + SAEV + LSTM  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-OurAE-v0.2a)     |
-| CameraOnly + conv + FF    | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraOnly-ConvAE-v0.2a-ff) |
-| CameraOnly + conv + LSTM  | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-ConvAE-v0.2a)   |
-| CameraSpeed + SAEV + FF | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-OurAE-v0.2a-ff)    |
-| CameraSpeed + SAEV + LSTM | [[Link]](https://github.com/gaoyuankidult/PepperSocial/tree/CameraSpeed-OurAE-v0.2a)    |
+| Vector + LSTM (Baseline)  | [[Link]](https://github.com/usr-lab/PepperSocial/tree/BASELINE-v0.2a)             |
+| CameraOnly + SAEV + FF    | [[Link]](https://github.com/usr-lab/PepperSocial/tree/CameraOnly-OurAE-v0.2a-ff)  |
+| CameraOnly + SAEV + LSTM  | [[Link]](https://github.com/usr-lab/PepperSocial/tree/CameraOnly-OurAE-v0.2a)     |
+| CameraOnly + conv + FF    | [[Link]](https://github.com/usr-lab/PepperSocial/tree/CameraOnly-ConvAE-v0.2a-ff) |
+| CameraOnly + conv + LSTM  | [[Link]](https://github.com/usr-lab/PepperSocial/tree/CameraSpeed-ConvAE-v0.2a)   |
+| CameraSpeed + SAEV + FF   | [[Link]](https://github.com/usr-lab/PepperSocial/tree/CameraSpeed-OurAE-v0.2a-ff) |
+| CameraSpeed + SAEV + LSTM | [[Link]](https://github.com/usr-lab/PepperSocial/tree/CameraSpeed-OurAE-v0.2a)    |
