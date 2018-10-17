@@ -1,5 +1,5 @@
 # Pepper Social Scenarios
-The pepper social scenarios is implemented using ml-agents. It is still under development. This repo is provided for the Paper [Social Behavior Learning with Realistic Reward Shaping]()
+The pepper social scenarios is implemented using ml-agents. It is still under development. This repo is provided for the Paper [Social Behavior Learning with Realistic Reward Shaping](https://arxiv.org/abs/1810.06979)
 
 **Tested Unity version:** 2018.1.0b13 (beta)
 **Tested Unity ML-Agents version:** 0.3.1b
